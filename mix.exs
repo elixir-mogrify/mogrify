@@ -2,17 +2,30 @@ defmodule Mogrify.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :mogrify,
-     version: "0.0.1",
-     elixir: "~> 1.0.0",
-     deps: deps]
+    [
+      app: :mogrify,
+      version: "0.1.0",
+      elixir: "~> 1.0.0",
+      description: description,
+      package: package,
+      deps: []
+     ]
   end
 
   def application do
     [applications: [:crypto, :logger]]
   end
 
-  defp deps do
-    []
+  defp description do
+    "ImageMagick command line wrapper."
+  end
+
+  defp package do
+    [
+      files: ["lib", "mix.exs", "README*"],
+      contributors: ["Dmitry Vorotilin"],
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/route/mogrify"}
+    ]
   end
 end
