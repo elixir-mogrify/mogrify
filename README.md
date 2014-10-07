@@ -11,7 +11,7 @@ You must have ImageMagick installed of course.
 Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ```elixir
-  {:mogrify,  github: "route/mogrify"}
+  {:mogrify, "~> 0.1"}
 ```
 
 ## Examples
@@ -21,7 +21,7 @@ Thumbnailing:
 ```elixir
   import Mogrify
 
-  # This does operations on original image:
+  # This does operations on an original image:
   open("input.jpg") |> resize("100x100")
   # This doesn't:
   open("input.jpg") |> copy |> resize("100x100") |> save("/your/path/here")
@@ -42,5 +42,5 @@ Getting info:
   import Mogrify
 
   image = open("input.jpg") |> verbose
-  IO.inspect image # => %Image{path: "input.png", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
+  IO.inspect image # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
 ```
