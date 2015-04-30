@@ -5,6 +5,7 @@ defmodule MogrifyTest do
   use ExUnit.Case, async: true
 
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
+  @fixture_with_space Path.join(__DIR__, "fixtures/ben der.jpg")
 
   test ".open" do
     image = open("./test/fixtures/bender.jpg")
@@ -12,6 +13,14 @@ defmodule MogrifyTest do
 
     image = open(@fixture)
     assert %Image{path: @fixture, ext: ".jpg"} = image
+  end
+
+  test ".open with space" do
+    image = open("./test/fixtures/ben der.jpg")
+    assert %Image{path: @fixture_with_space, ext: ".jpg"} = image
+
+    image = open(@fixture_with_space)
+    assert %Image{path: @fixture_with_space, ext: ".jpg"} = image
   end
 
   test ".save" do

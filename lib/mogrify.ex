@@ -44,6 +44,7 @@ defmodule Mogrify do
   end
 
   defp run(path, option, params \\ nil) do
-    System.cmd "mogrify", ~w(-#{option} #{params} #{path}), stderr_to_stdout: true
+    args = ~w(-#{option} #{params} #{String.replace(path, " ", "\\ ")})
+    System.cmd "mogrify", args, stderr_to_stdout: true
   end
 end
