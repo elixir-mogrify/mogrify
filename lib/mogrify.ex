@@ -94,6 +94,10 @@ defmodule Mogrify do
     image
   end
 
+  def custom(image, options) do
+    System.cmd "mogrify", ~w(#{options} #{image.path}), stderr_to_stdout: true
+  end
+
   defp run(path, option, params \\ nil) do
     args = ~w(-#{option} #{params} #{String.replace(path, " ", "\\ ")})
     System.cmd "mogrify", args, stderr_to_stdout: true
