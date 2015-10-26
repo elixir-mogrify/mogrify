@@ -50,3 +50,10 @@ Getting info:
   image = open("input.jpg") |> verbose
   IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
 ```
+
+Custom (raw) commands:
+```elixir
+  import Mogrify
+
+  #custom/2 accepts any string of parameters that the mogrify CLI tool will accept
+  image = open("input.jpg") |> custom(~s(-resize "600x" -unsharp 2x0.5+0.7+0 -quality 98))
