@@ -11,7 +11,7 @@ You must have ImageMagick installed of course.
 Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ```elixir
-  {:mogrify, "~> 0.1"}
+  {:mogrify, "~> 0.2"}
 ```
 
 ## Examples
