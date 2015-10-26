@@ -23,7 +23,7 @@ defmodule Mogrify.Mixfile do
   defp package do
     [
       files: ["lib", "mix.exs", "README*"],
-      contributors: ["Dmitry Vorotilin"],
+      maintainers: ["Dmitry Vorotilin"],
       licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/route/mogrify"}
     ]
