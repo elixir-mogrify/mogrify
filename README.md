@@ -25,6 +25,12 @@ Thumbnailing:
   open("input.jpg") |> resize("100x100")
   # This doesn't:
   open("input.jpg") |> copy |> resize("100x100") |> save("/your/path/here")
+  # Resize to fill
+  open("input.jpg") |> copy |> resize_to_fill("450x300")
+  # Resize to limit
+  open("input.jpg") |> copy |> resize_to_limit("200x200")
+  # Extent
+  open("input.jpg") |> copy |> extent("500x500")
 ```
 
 Converting:
@@ -42,5 +48,5 @@ Getting info:
   import Mogrify
 
   image = open("input.jpg") |> verbose
-  IO.inspect image # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
+  IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
 ```
