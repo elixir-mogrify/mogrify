@@ -23,6 +23,12 @@ defmodule MogrifyTest do
     assert %Image{path: @fixture_with_space, ext: ".jpg"} = image
   end
 
+  test ".open when file does not exist" do
+    assert_raise File.Error, fn ->
+      open("./test/fixtures/does_not_exist.jpg")
+    end
+  end
+
   test ".save" do
     path = Path.join(System.tmp_dir, "1.jpg")
 
