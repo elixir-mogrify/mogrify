@@ -19,15 +19,32 @@ defmodule Mogrify do
     %{image | path: path}
   end
 
+  def save(image) do
+    path = temporary_path_for(image)
+    System.cmd "mogrify", arguments(image, path), stderr_to_stdout: true
+    %{image | path: path, operations: []}
+  end
+
+  def arguments(image, path) do
+    base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
+    additional_arguments = Enum.flat_map image.operations, fn {option,params} -> ~w(-#{option} #{params}) end
+
+    additional_arguments ++ base_arguments
+  end
+
   @doc """
   Makes a copy of original image
   """
   def copy(image) do
-    name = Path.basename(image.path)
-    random = :crypto.rand_uniform(100_000, 999_999)
-    temp = Path.join(System.tmp_dir, "#{random}-#{name}")
+    temp = temporary_path_for(image)
     File.cp!(image.path, temp)
     Map.put(image, :path, temp)
+  end
+
+  def temporary_path_for(image) do
+    name = Path.basename(image.path)
+    random = :crypto.rand_uniform(100_000, 999_999)
+    Path.join(System.tmp_dir, "#{random}-#{name}")
   end
 
   @doc """
@@ -57,16 +74,14 @@ defmodule Mogrify do
   Resizes the image with provided geometry
   """
   def resize(image, params) do
-    {_, 0} = run(image.path, "resize", params)
-    image |> verbose
+    %{image | operations: image.operations ++ [resize: params]}
   end
 
   @doc """
   Extends the image to the specified dimensions
   """
   def extent(image, params) do
-    {_, 0} = run(image.path, "extent", params)
-    image |> verbose
+    %{image | operations: image.operations ++ [extent: params]}
   end
 
   @doc """
