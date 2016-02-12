@@ -112,6 +112,11 @@ defmodule Mogrify do
     image
   end
 
+  def auto_orient(image) do
+    run image.path, "auto-orient"
+    image
+  end
+
   defp run(path, option, params \\ nil) do
     args = ~w(-#{option} #{params} #{String.replace(path, " ", "\\ ")})
     System.cmd "mogrify", args, stderr_to_stdout: true
