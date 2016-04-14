@@ -35,9 +35,9 @@ defmodule MogrifyTest do
 
   test ".copy" do
     image = open(@fixture) |> copy
-    tmp_dir_for_regex = System.tmp_dir |> String.replace("\\", "\\\\")
-    slash = if String.ends_with?(tmp_dir_for_regex, "/"), do: "", else: "/"
-    assert Regex.match?(~r(#{tmp_dir_for_regex}#{slash}\d+-bender\.jpg), image.path)
+    tmp_dir = System.tmp_dir |> Regex.escape
+    slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
+    assert Regex.match?(~r(#{tmp_dir}#{slash}\d+-bender\.jpg), image.path)
   end
 
   test ".verbose" do
