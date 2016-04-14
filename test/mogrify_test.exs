@@ -7,6 +7,14 @@ defmodule MogrifyTest do
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "fixtures/ben der.jpg")
 
+  setup do
+    tmp_copy = open(@fixture) |> copy
+
+    on_exit fn ->
+      File.cp tmp_copy.path, @fixture
+    end
+  end
+
   test ".open" do
     image = open("./test/fixtures/bender.jpg")
     assert %Image{path: @fixture, ext: ".jpg"} = image
