@@ -48,9 +48,11 @@ defmodule Mogrify do
   """
   def format(image, format) do
     {_, 0} = run(image.path, "format", format)
-    ext = ".#{String.downcase(format)}"
+    downcase_format = String.downcase(format)
+    ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
     %{image | path: "#{rootname}#{ext}", ext: ext}
+    |> Map.put(:format, downcase_format)
   end
 
   @doc """
