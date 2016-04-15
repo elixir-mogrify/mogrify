@@ -12,17 +12,22 @@ defmodule Mogrify do
   end
 
   @doc """
-  Saves modified image
+  Saves modified image to a temporary location
   """
-  def save(image, path) do
-    File.cp!(image.path, path)
-    %{image | path: path}
+  def save(image) do
+    do_save(image, temporary_path_for(image))
   end
 
-  def save(image) do
-    path = temporary_path_for(image)
-    System.cmd "mogrify", arguments(image, path), stderr_to_stdout: true
-    %{image | path: path, operations: []}
+  @doc """
+  Saves modified image to specified path
+  """
+  def save(image, path) do
+    do_save(image, path)
+  end
+
+  defp do_save(image, output_path) do
+    System.cmd "mogrify", arguments(image, output_path), stderr_to_stdout: true
+    %{image | path: output_path, ext: Path.extname(output_path), operations: [], dirty: %{}}
   end
 
   def arguments(image, path) do
@@ -41,8 +46,15 @@ defmodule Mogrify do
     Map.put(image, :path, temp)
   end
 
-  def temporary_path_for(image) do
-    name = Path.basename(image.path)
+  def temporary_path_for(%{dirty: %{path: dirty_path}} = _image) do
+    do_temporary_path_for(dirty_path)
+  end
+  def temporary_path_for(%{path: path} = _image) do
+    do_temporary_path_for(path)
+  end
+
+  defp do_temporary_path_for(path) do
+    name = Path.basename(path)
     random = :crypto.rand_uniform(100_000, 999_999)
     Path.join(System.tmp_dir, "#{random}-#{name}")
   end
@@ -64,10 +76,11 @@ defmodule Mogrify do
   Converts the image to the image format you specify
   """
   def format(image, format) do
-    {_, 0} = run(image.path, "format", format)
     ext = ".#{String.downcase(format)}"
     rootname = Path.rootname(image.path, image.ext)
-    %{image | path: "#{rootname}#{ext}", ext: ext}
+
+    %{image | operations: image.operations ++ [format: format],
+              dirty: Map.put(image.dirty, :path, "#{rootname}#{ext}")}
   end
 
   @doc """
