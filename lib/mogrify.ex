@@ -27,7 +27,11 @@ defmodule Mogrify do
 
   defp do_save(image, output_path) do
     System.cmd "mogrify", arguments(image, output_path), stderr_to_stdout: true
-    %{image | path: output_path, ext: Path.extname(output_path), operations: [], dirty: %{}}
+    %{image | path: output_path,
+              ext: Path.extname(output_path),
+              format: image.dirty[:format] || image.format,
+              operations: [],
+              dirty: %{}}
   end
 
   def arguments(image, path) do
@@ -76,11 +80,12 @@ defmodule Mogrify do
   Converts the image to the image format you specify
   """
   def format(image, format) do
-    ext = ".#{String.downcase(format)}"
+    downcase_format = String.downcase(format)
+    ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
 
     %{image | operations: image.operations ++ [format: format],
-              dirty: Map.put(image.dirty, :path, "#{rootname}#{ext}")}
+              dirty: image.dirty |> Map.put(:path, "#{rootname}#{ext}") |> Map.put(:format, downcase_format)}
   end
 
   @doc """

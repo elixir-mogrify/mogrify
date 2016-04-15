@@ -54,6 +54,11 @@ defmodule MogrifyTest do
     assert %Image{ext: ".png", format: "png", height: "292", width: "300"} = image
   end
 
+  test ".format updates format after save" do
+    image = open(@fixture) |> format("png") |> save
+    assert %Image{ext: ".png", format: "png"} = image
+  end
+
   test ".resize" do
     image = open(@fixture) |> resize("100x100") |> save |> verbose
     assert %Image{width: "100", height: "97"} = image
