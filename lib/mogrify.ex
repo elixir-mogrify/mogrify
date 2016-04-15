@@ -141,13 +141,11 @@ defmodule Mogrify do
   end
 
   def auto_orient(image) do
-    run image.path, "auto-orient"
-    image
+    %{image | operations: image.operations ++ ["auto-orient": nil]}
   end
 
   def custom(image, action, options \\ nil) do
-    run image.path, action, options
-    image
+    %{image | operations: image.operations ++ [{action, options}]}
   end
 
   defp run(path, option, params \\ nil) do
