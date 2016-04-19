@@ -24,7 +24,7 @@ defmodule Mogrify.Mixfile do
     [
       files: ["lib", "mix.exs", "README*"],
       maintainers: ["Dmitry Vorotilin"],
-      licenses: ["Apache 2.0"],
+      licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/route/mogrify"}
     ]
   end

@@ -50,3 +50,7 @@ Getting info:
   image = open("input.jpg") |> verbose
   IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
 ```
+
+## License
+
+Mogrify source code is licensed under the [MIT License](LICENSE.md).
