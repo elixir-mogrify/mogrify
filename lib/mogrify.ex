@@ -12,29 +12,27 @@ defmodule Mogrify do
   end
 
   @doc """
-  Saves modified image to a temporary location
+  Saves modified image
   """
-  def save(image) do
-    do_save(image, temporary_path_for(image))
-  end
-
-  @doc """
-  Saves modified image to specified path
-  """
-  def save(image, path) do
-    do_save(image, path)
-  end
-
-  defp do_save(image, output_path) do
+  def save(image, opts \\ []) do
+    output_path = output_path_for(image, opts)
     System.cmd "mogrify", arguments(image, output_path), stderr_to_stdout: true
     %{image | path: output_path,
               ext: Path.extname(output_path),
-              format: image.dirty[:format] || image.format,
+              format: Map.get(image.dirty, :format, image.format),
               operations: [],
               dirty: %{}}
   end
 
-  def arguments(image, path) do
+  defp output_path_for(image, save_opts) do
+    if Keyword.get(save_opts, :in_place) do
+      image.path
+    else
+      Keyword.get(save_opts, :path, temporary_path_for(image))
+    end
+  end
+
+  defp arguments(image, path) do
     base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
     additional_arguments = Enum.flat_map image.operations, fn {option,params} -> ~w(-#{option} #{params}) end
 
