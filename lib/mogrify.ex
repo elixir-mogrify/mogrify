@@ -13,6 +13,11 @@ defmodule Mogrify do
 
   @doc """
   Saves modified image
+
+  ## Options
+
+  * `:path` - The output path of the image. Defaults to a temporary file.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
