@@ -13,21 +13,57 @@ defmodule Mogrify do
 
   @doc """
   Saves modified image
+
+  ## Options
+
+  * `:path` - The output path of the image. Defaults to a temporary file.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
   """
-  def save(image, path) do
-    File.cp!(image.path, path)
-    %{image | path: path}
+  def save(image, opts \\ []) do
+    output_path = output_path_for(image, opts)
+    System.cmd "mogrify", arguments(image, output_path), stderr_to_stdout: true
+    %{image | path: output_path,
+              ext: Path.extname(output_path),
+              format: Map.get(image.dirty, :format, image.format),
+              operations: [],
+              dirty: %{}}
+  end
+
+  defp output_path_for(image, save_opts) do
+    if Keyword.get(save_opts, :in_place) do
+      image.path
+    else
+      Keyword.get(save_opts, :path, temporary_path_for(image))
+    end
+  end
+
+  defp arguments(image, path) do
+    base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
+    additional_arguments = Enum.flat_map image.operations, fn {option,params} -> ~w(-#{option} #{params}) end
+
+    additional_arguments ++ base_arguments
   end
 
   @doc """
   Makes a copy of original image
   """
   def copy(image) do
-    name = Path.basename(image.path)
-    random = :crypto.rand_uniform(100_000, 999_999)
-    temp = Path.join(System.tmp_dir, "#{random}-#{name}")
+    temp = temporary_path_for(image)
     File.cp!(image.path, temp)
     Map.put(image, :path, temp)
+  end
+
+  def temporary_path_for(%{dirty: %{path: dirty_path}} = _image) do
+    do_temporary_path_for(dirty_path)
+  end
+  def temporary_path_for(%{path: path} = _image) do
+    do_temporary_path_for(path)
+  end
+
+  defp do_temporary_path_for(path) do
+    name = Path.basename(path)
+    random = :crypto.rand_uniform(100_000, 999_999)
+    Path.join(System.tmp_dir, "#{random}-#{name}")
   end
 
   @doc """
@@ -47,26 +83,26 @@ defmodule Mogrify do
   Converts the image to the image format you specify
   """
   def format(image, format) do
-    {_, 0} = run(image.path, "format", format)
-    ext = ".#{String.downcase(format)}"
+    downcase_format = String.downcase(format)
+    ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
-    %{image | path: "#{rootname}#{ext}", ext: ext}
+
+    %{image | operations: image.operations ++ [format: format],
+              dirty: image.dirty |> Map.put(:path, "#{rootname}#{ext}") |> Map.put(:format, downcase_format)}
   end
 
   @doc """
   Resizes the image with provided geometry
   """
   def resize(image, params) do
-    {_, 0} = run(image.path, "resize", params)
-    image |> verbose
+    %{image | operations: image.operations ++ [resize: params]}
   end
 
   @doc """
   Extends the image to the specified dimensions
   """
   def extent(image, params) do
-    {_, 0} = run(image.path, "extent", params)
-    image |> verbose
+    %{image | operations: image.operations ++ [extent: params]}
   end
 
   @doc """
@@ -113,13 +149,11 @@ defmodule Mogrify do
   end
 
   def auto_orient(image) do
-    run image.path, "auto-orient"
-    image
+    %{image | operations: image.operations ++ ["auto-orient": nil]}
   end
 
   def custom(image, action, options \\ nil) do
-    run image.path, action, options
-    image
+    %{image | operations: image.operations ++ [{action, options}]}
   end
 
   defp run(path, option, params \\ nil) do

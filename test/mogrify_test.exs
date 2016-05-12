@@ -31,13 +31,43 @@ defmodule MogrifyTest do
     assert %Image{path: @fixture_with_space, ext: ".jpg"} = image
   end
 
+  test ".open when file does not exist" do
+    assert_raise File.Error, fn ->
+      open("./test/fixtures/does_not_exist.jpg")
+    end
+  end
+
   test ".save" do
     path = Path.join(System.tmp_dir, "1.jpg")
 
-    image = open(@fixture) |> save(path)
+    image = open(@fixture) |> save(path: path)
 
     assert File.regular?(path)
     assert %Image{path: path} = image
+    File.rm!(path)
+  end
+
+  test ".save in place" do
+    # setup, make a copy
+    path = Path.join(System.tmp_dir, "1.jpg")
+    open(@fixture) |> save(path: path)
+
+    # test begins
+    image = open(path) |> resize("600x600") |> save(in_place: true) |> verbose
+    assert %Image{path: path, height: "584", width: "600"} = image
+
+    File.rm!(path)
+  end
+
+  test ".save :in_place ignores :path option" do
+    # setup, make a copy
+    path = Path.join(System.tmp_dir, "1.jpg")
+    open(@fixture) |> save(path: path)
+
+    # test begins
+    image = open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
+    assert %Image{path: path, height: "584", width: "600"} = image
+
     File.rm!(path)
   end
 
@@ -54,27 +84,32 @@ defmodule MogrifyTest do
   end
 
   test ".format" do
-    image = open(@fixture) |> copy |> format("png") |> verbose
+    image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: "292", width: "300"} = image
   end
 
+  test ".format updates format after save" do
+    image = open(@fixture) |> format("png") |> save
+    assert %Image{ext: ".png", format: "png"} = image
+  end
+
   test ".resize" do
-    image = open(@fixture) |> copy |> resize("100x100")
+    image = open(@fixture) |> resize("100x100") |> save |> verbose
     assert %Image{width: "100", height: "97"} = image
   end
 
   test ".resize_to_fill" do
-    image = open(@fixture) |> copy |> resize_to_fill("450x300")
+    image = open(@fixture) |> resize_to_fill("450x300") |> save |> verbose
     assert %Image{width: "450", height: "300"} = image
   end
 
   test ".resize_to_limit" do
-    image = open(@fixture) |> copy |> resize_to_limit("200x200")
+    image = open(@fixture) |> resize_to_limit("200x200") |> save |> verbose
     assert %Image{width: "200", height: "195"} = image
   end
 
   test ".extent" do
-    image = open(@fixture) |> copy |> extent("500x500")
+    image = open(@fixture) |> extent("500x500") |> save |> verbose
     assert %Image{width: "500", height: "500"} = image
   end
 end

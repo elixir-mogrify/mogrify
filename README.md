@@ -22,15 +22,20 @@ Thumbnailing:
   import Mogrify
 
   # This does operations on an original image:
-  open("input.jpg") |> resize("100x100")
-  # This doesn't:
-  open("input.jpg") |> copy |> resize("100x100") |> save("/your/path/here")
+  open("input.jpg") |> resize("100x100") |> save(in_place: true)
+
+  # save/1 creates a copy of the file by default:
+  image = open("input.jpg") |> resize("100x100") |> save
+  IO.inspect(image) # => %Image{path: "/tmp/260199-input.jpg", ext: ".jpg", ...}
+
   # Resize to fill
-  open("input.jpg") |> copy |> resize_to_fill("450x300")
+  open("input.jpg") |> resize_to_fill("450x300") |> save
+
   # Resize to limit
-  open("input.jpg") |> copy |> resize_to_limit("200x200")
+  open("input.jpg") |> resize_to_limit("200x200") |> save
+
   # Extent
-  open("input.jpg") |> copy |> extent("500x500")
+  open("input.jpg") |> extent("500x500") |> save
 ```
 
 Converting:
@@ -38,8 +43,8 @@ Converting:
 ```elixir
   import Mogrify
 
-  image = open("input.jpg") |> format("png")
-  IO.inspect(image) # => %Image{path: "input.png", ext: ".png", format: "png", height: "292", width: "300"}
+  image = open("input.jpg") |> format("png") |> save
+  IO.inspect(image) # => %Image{path: "/tmp/568550-input.png", ext: ".png", format: "png", height: "292", width: "300"}
 ```
 
 Getting info:
