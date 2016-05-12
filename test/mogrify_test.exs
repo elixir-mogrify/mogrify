@@ -7,6 +7,14 @@ defmodule MogrifyTest do
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "fixtures/ben der.jpg")
 
+  setup do
+    tmp_copy = open(@fixture) |> copy
+
+    on_exit fn ->
+      File.cp tmp_copy.path, @fixture
+    end
+  end
+
   test ".open" do
     image = open("./test/fixtures/bender.jpg")
     assert %Image{path: @fixture, ext: ".jpg"} = image
@@ -35,7 +43,9 @@ defmodule MogrifyTest do
 
   test ".copy" do
     image = open(@fixture) |> copy
-    assert Regex.match?(~r(#{System.tmp_dir}\d+-bender\.jpg), image.path)
+    tmp_dir = System.tmp_dir |> Regex.escape
+    slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
+    assert Regex.match?(~r(#{tmp_dir}#{slash}\d+-bender\.jpg), image.path)
   end
 
   test ".verbose" do
