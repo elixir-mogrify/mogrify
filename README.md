@@ -11,7 +11,7 @@ You must have ImageMagick installed of course.
 Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ```elixir
-  {:mogrify, "~> 0.2"}
+  {:mogrify, "~> 0.3.0"}
 ```
 
 ## Examples
@@ -55,6 +55,10 @@ Getting info:
   image = open("input.jpg") |> verbose
   IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
 ```
+
+## Changelog
+
+See the [changelog](CHANGELOG.md) for important release notes between Mogrify versions.
 
 ## License
 

@@ -4,7 +4,7 @@ defmodule Mogrify.Mixfile do
   def project do
     [
       app: :mogrify,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: ">= 1.0.0",
       description: description,
       package: package,
@@ -22,7 +22,7 @@ defmodule Mogrify.Mixfile do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README*"],
+      files: ["lib", "mix.exs", "README*", "CHANGELOG*", "LICENSE*"],
       maintainers: ["Dmitry Vorotilin"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/route/mogrify"}
