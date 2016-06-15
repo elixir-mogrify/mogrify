@@ -11,7 +11,7 @@ You must have ImageMagick installed of course.
 Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ```elixir
-  {:mogrify, "~> 0.3.0"}
+  {:mogrify, "~> 0.3.1"}
 ```
 
 ## Examples
@@ -36,10 +36,10 @@ Thumbnailing:
 
   # Extent
   open("input.jpg") |> extent("500x500") |> save
-  
+
   # Gravity
   open("input.jpg") |> gravity("Center") |> save
-  
+
 ```
 
 Converting:

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2016-06-15)
+
+* Added `gravity/2`, for example: `gravity(image, "Center")`
+
 ## 0.3.0 (2016-05-12)
 
 * Breaking changes
