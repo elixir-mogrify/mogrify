@@ -36,6 +36,10 @@ Thumbnailing:
 
   # Extent
   open("input.jpg") |> extent("500x500") |> save
+  
+  # Gravity
+  open("input.jpg") |> gravity("Center") |> save
+  
 ```
 
 Converting:

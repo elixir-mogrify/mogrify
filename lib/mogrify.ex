@@ -106,6 +106,13 @@ defmodule Mogrify do
   end
 
   @doc """
+  Sets the gravity of the image
+  """
+  def gravity(image, params) do
+    %{image | operations: image.operations ++ [gravity: params]}
+  end
+
+  @doc """
   Resize the image to fit within the specified dimensions while retaining
   the original aspect ratio. Will only resize the image if it is larger than the
   specified dimensions. The resulting image may be shorter or narrower than specified
