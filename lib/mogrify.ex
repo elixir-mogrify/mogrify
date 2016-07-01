@@ -138,21 +138,19 @@ defmodule Mogrify do
     if width != cols || height != rows do
       scale_x = width/cols #.to_f
       scale_y = height/rows #.to_f
-      if scale_x >= scale_y do
-        cols = (scale_x * (cols + 0.5)) |> Float.round
-        rows = (scale_x * (rows + 0.5)) |> Float.round
-        image = resize image, "#{cols}"
-      else
-        cols = (scale_y * (cols + 0.5)) |> Float.round
-        rows = (scale_y * (rows + 0.5)) |> Float.round
-        image = resize image, "x#{rows}"
-      end
-    end
+      larger_scale = max(scale_x, scale_y)
+      cols = (larger_scale * (cols + 0.5)) |> Float.round
+      rows = (larger_scale * (rows + 0.5)) |> Float.round
+      image = resize image, (if scale_x >= scale_y, do: "#{cols}", else: "x#{rows}")
 
-    if cols != width || rows != height do
-      image = extent(image, params)
+      if width != cols || height != rows do
+        extent(image, params)
+      else
+        image
+      end
+    else
+      image
     end
-    image
   end
 
   def auto_orient(image) do
