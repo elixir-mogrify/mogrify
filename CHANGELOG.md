@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 (2016-06-30)
+
+* Fixed Elixir 1.3 compiler warnings
+
 ## 0.3.1 (2016-06-15)
 
 * Added `gravity/2`, for example: `gravity(image, "Center")`
