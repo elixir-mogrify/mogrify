@@ -8,12 +8,16 @@ defmodule Mogrify.Mixfile do
       elixir: ">= 1.0.0",
       description: description,
       package: package,
-      deps: []
+      deps: deps
      ]
   end
 
   def application do
     [applications: [:crypto, :logger]]
+  end
+
+  defp deps do
+    [{:ex_doc, ">= 0.0.0", only: :dev}]
   end
 
   defp description do

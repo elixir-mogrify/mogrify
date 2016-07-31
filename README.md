@@ -2,6 +2,8 @@
 
 An Elixir wrapper for ImageMagick command line.
 
+Documentation: https://hexdocs.pm/mogrify/
+
 ## Requirements
 
 You must have ImageMagick installed of course.
