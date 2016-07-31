@@ -6,6 +6,7 @@ defmodule MogrifyTest do
 
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "fixtures/ben der.jpg")
+  @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
 
   setup do
     tmp_copy = open(@fixture) |> copy
@@ -80,7 +81,12 @@ defmodule MogrifyTest do
 
   test ".verbose" do
     image = open(@fixture)
-    assert %Image{format: "jpeg", height: "292", width: "300"} = verbose(image)
+    assert %Image{format: "jpeg", height: "292", width: "300", animated: false} = verbose(image)
+  end
+
+  test ".verbose animated" do
+    image = open(@fixture_animated)
+    assert %Image{format: "gif", animated: true} = verbose(image)
   end
 
   test ".format" do
