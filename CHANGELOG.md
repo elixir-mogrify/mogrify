@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 (2016-08-01)
+
+* `verbose/1` now sets the `Image.animated` field for images containing multiple frames
+
 ## 0.3.2 (2016-06-30)
 
 * Fixed Elixir 1.3 compiler warnings
