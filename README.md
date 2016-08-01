@@ -1,5 +1,7 @@
 # Mogrify
 
+[![Build Status](https://travis-ci.org/route/mogrify.svg?branch=master)](https://travis-ci.org/route/mogrify)
+
 An Elixir wrapper for ImageMagick command line.
 
 Documentation: https://hexdocs.pm/mogrify/
