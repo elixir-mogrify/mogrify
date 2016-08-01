@@ -71,13 +71,17 @@ defmodule Mogrify do
   """
   def verbose(image) do
     {output, 0} = run(image.path, "verbose")
-    info = Regex.named_captures(~r/\S+ (?<format>\S+) (?<width>\d+)x(?<height>\d+)/, output)
-    info = Enum.reduce(info, %{}, fn ({key, value}, acc) ->
-      {key, value} = {String.to_atom(key), String.downcase(value)}
-      Map.put(acc, key, value)
-    end)
+    info =
+      ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
+      |> Regex.named_captures(output)
+      |> Enum.map(&normalize_verbose_term/1)
+      |> Enum.into(%{})
     Map.merge(image, info)
   end
+
+  defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
+  defp normalize_verbose_term({"animated", ""}), do: {:animated, false}
+  defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
 
   @doc """
   Converts the image to the image format you specify
