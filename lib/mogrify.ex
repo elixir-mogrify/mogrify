@@ -91,6 +91,9 @@ defmodule Mogrify do
 
   defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
   defp normalize_verbose_term({"animated", ""}), do: {:animated, false}
+  defp normalize_verbose_term({key, value}) when key in ["width", "height"] do
+    {String.to_atom(key), String.to_integer(value)}
+  end
   defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
 
   defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
@@ -155,8 +158,8 @@ defmodule Mogrify do
     image = Mogrify.verbose(image)
     {width, _} = Float.parse width
     {height, _} = Float.parse height
-    {cols, _} = Float.parse image.width
-    {rows, _} = Float.parse image.height
+    cols = image.width
+    rows = image.height
 
     if width != cols || height != rows do
       scale_x = width/cols #.to_f
