@@ -95,12 +95,10 @@ defmodule Mogrify do
 
   defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
   defp put_frame_count(map, text) do
-    frame_count =
-      # skip the [0] lines which may be duplicated
-      case Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text) do
-        nil -> 1
-        matches -> length(matches) + 1  # add 1 for the skipped [0] frame
-      end
+    # skip the [0] lines which may be duplicated
+    matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
+    # add 1 for the skipped [0] frame
+    frame_count = length(matches) + 1
     Map.put(map, :frame_count, frame_count)
   end
 
