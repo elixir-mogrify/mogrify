@@ -70,13 +70,22 @@ defmodule Mogrify do
   Provides detailed information about the image
   """
   def verbose(image) do
-    {output, 0} = run(image.path, "verbose")
+    args = ~w(-verbose -write #{dev_null} #{String.replace(image.path, " ", "\\ ")})
+    {output, 0} = System.cmd "mogrify", args, stderr_to_stdout: true
+
     info =
       ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
       |> Regex.named_captures(output)
       |> Enum.map(&normalize_verbose_term/1)
       |> Enum.into(%{})
     Map.merge(image, info)
+  end
+
+  defp dev_null do
+    case :os.type do
+      {:win32, _} -> "NUL"
+      _ -> "/dev/null"
+    end
   end
 
   defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
@@ -163,10 +172,5 @@ defmodule Mogrify do
 
   def custom(image, action, options \\ nil) do
     %{image | operations: image.operations ++ [{action, options}]}
-  end
-
-  defp run(path, option, params \\ nil) do
-    args = ~w(-#{option} #{params} #{String.replace(path, " ", "\\ ")})
-    System.cmd "mogrify", args, stderr_to_stdout: true
   end
 end

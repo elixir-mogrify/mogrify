@@ -89,6 +89,16 @@ defmodule MogrifyTest do
     assert %Image{format: "gif", animated: true} = verbose(image)
   end
 
+  test ".verbose should not change file modification time" do
+    %{mtime: old_time} = File.stat! @fixture
+
+    Process.sleep(1000)
+    open(@fixture) |> verbose
+
+    %{mtime: new_time} = File.stat! @fixture
+    assert old_time == new_time
+  end
+
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: "292", width: "300"} = image
