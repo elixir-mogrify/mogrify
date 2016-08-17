@@ -92,7 +92,7 @@ defmodule MogrifyTest do
   test ".verbose should not change file modification time" do
     %{mtime: old_time} = File.stat! @fixture
 
-    Process.sleep(1000)
+    :timer.sleep(1000)
     open(@fixture) |> verbose
 
     %{mtime: new_time} = File.stat! @fixture
