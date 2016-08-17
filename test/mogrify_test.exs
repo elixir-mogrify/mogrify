@@ -91,6 +91,11 @@ defmodule MogrifyTest do
     assert old_time == new_time
   end
 
+  test ".verbose frame_count" do
+    assert %Image{frame_count: 1} = open(@fixture) |> verbose
+    assert %Image{frame_count: 2} = open(@fixture_animated) |> verbose
+  end
+
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: "292", width: "300"} = image
