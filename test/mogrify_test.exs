@@ -47,7 +47,7 @@ defmodule MogrifyTest do
 
     # test begins
     image = open(path) |> resize("600x600") |> save(in_place: true) |> verbose
-    assert %Image{path: path, height: "584", width: "600"} = image
+    assert %Image{path: path, height: 584, width: 600} = image
 
     File.rm!(path)
   end
@@ -59,7 +59,7 @@ defmodule MogrifyTest do
 
     # test begins
     image = open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
-    assert %Image{path: path, height: "584", width: "600"} = image
+    assert %Image{path: path, height: 584, width: 600} = image
 
     File.rm!(path)
   end
@@ -73,7 +73,7 @@ defmodule MogrifyTest do
 
   test ".verbose" do
     image = open(@fixture)
-    assert %Image{format: "jpeg", height: "292", width: "300", animated: false} = verbose(image)
+    assert %Image{format: "jpeg", height: 292, width: 300, animated: false} = verbose(image)
   end
 
   test ".verbose animated" do
@@ -98,7 +98,7 @@ defmodule MogrifyTest do
 
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
-    assert %Image{ext: ".png", format: "png", height: "292", width: "300"} = image
+    assert %Image{ext: ".png", format: "png", height: 292, width: 300} = image
   end
 
   test ".format updates format after save" do
@@ -108,21 +108,21 @@ defmodule MogrifyTest do
 
   test ".resize" do
     image = open(@fixture) |> resize("100x100") |> save |> verbose
-    assert %Image{width: "100", height: "97"} = image
+    assert %Image{width: 100, height: 97} = image
   end
 
   test ".resize_to_fill" do
     image = open(@fixture) |> resize_to_fill("450x300") |> save |> verbose
-    assert %Image{width: "450", height: "300"} = image
+    assert %Image{width: 450, height: 300} = image
   end
 
   test ".resize_to_limit" do
     image = open(@fixture) |> resize_to_limit("200x200") |> save |> verbose
-    assert %Image{width: "200", height: "195"} = image
+    assert %Image{width: 200, height: 195} = image
   end
 
   test ".extent" do
     image = open(@fixture) |> extent("500x500") |> save |> verbose
-    assert %Image{width: "500", height: "500"} = image
+    assert %Image{width: 500, height: 500} = image
   end
 end

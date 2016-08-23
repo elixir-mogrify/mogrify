@@ -3,8 +3,8 @@ defmodule Mogrify.Image do
   @type path        :: binary
   @type ext         :: binary
   @type format      :: binary
-  @type width       :: binary
-  @type height      :: binary
+  @type width       :: integer
+  @type height      :: integer
   @type animated    :: boolean
   @type frame_count :: integer
   @type operations  :: Keyword.t
