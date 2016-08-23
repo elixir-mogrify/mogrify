@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 (2016-08-23)
+
+* Breaking changes
+  * `Image.width` and `Image.height` are now integers instead of binaries
+
+* Enhancements
+  * `verbose/1` no longer modifies the input file
+  * Added `Image.frame_count` integer field for animated images, set by `verbose/1`
+
 ## 0.3.3 (2016-08-01)
 
 * `verbose/1` now sets the `Image.animated` field for images containing multiple frames
