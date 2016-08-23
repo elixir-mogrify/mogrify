@@ -78,6 +78,7 @@ defmodule Mogrify do
       |> Regex.named_captures(output)
       |> Enum.map(&normalize_verbose_term/1)
       |> Enum.into(%{})
+      |> put_frame_count(output)
     Map.merge(image, info)
   end
 
@@ -91,6 +92,15 @@ defmodule Mogrify do
   defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
   defp normalize_verbose_term({"animated", ""}), do: {:animated, false}
   defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
+
+  defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
+  defp put_frame_count(map, text) do
+    # skip the [0] lines which may be duplicated
+    matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
+    # add 1 for the skipped [0] frame
+    frame_count = length(matches) + 1
+    Map.put(map, :frame_count, frame_count)
+  end
 
   @doc """
   Converts the image to the image format you specify
