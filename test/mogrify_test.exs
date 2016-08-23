@@ -8,14 +8,6 @@ defmodule MogrifyTest do
   @fixture_with_space Path.join(__DIR__, "fixtures/ben der.jpg")
   @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
 
-  setup do
-    tmp_copy = open(@fixture) |> copy
-
-    on_exit fn ->
-      File.cp tmp_copy.path, @fixture
-    end
-  end
-
   test ".open" do
     image = open("./test/fixtures/bender.jpg")
     assert %Image{path: @fixture, ext: ".jpg"} = image
@@ -87,6 +79,16 @@ defmodule MogrifyTest do
   test ".verbose animated" do
     image = open(@fixture_animated)
     assert %Image{format: "gif", animated: true} = verbose(image)
+  end
+
+  test ".verbose should not change file modification time" do
+    %{mtime: old_time} = File.stat! @fixture
+
+    :timer.sleep(1000)
+    open(@fixture) |> verbose
+
+    %{mtime: new_time} = File.stat! @fixture
+    assert old_time == new_time
   end
 
   test ".format" do
