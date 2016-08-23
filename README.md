@@ -52,7 +52,7 @@ Converting:
   import Mogrify
 
   image = open("input.jpg") |> format("png") |> save
-  IO.inspect(image) # => %Image{path: "/tmp/568550-input.png", ext: ".png", format: "png", height: "292", width: "300"}
+  IO.inspect(image) # => %Image{path: "/tmp/568550-input.png", ext: ".png", format: "png", height: 292, width: 300}
 ```
 
 Getting info:
@@ -61,7 +61,7 @@ Getting info:
   import Mogrify
 
   image = open("input.jpg") |> verbose
-  IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: "292", width: "300"}
+  IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: 292, width: 300}
 ```
 
 ## Changelog
