@@ -21,7 +21,17 @@ defmodule Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
-    System.cmd "mogrify", arguments(image, output_path), stderr_to_stdout: true
+    System.cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
+    image_after_command(image, output_path)
+  end
+
+  def create(image, opts \\ []) do
+    output_path = output_path_for(image, opts)
+    System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
+    image_after_command(image, output_path)
+  end
+
+  defp image_after_command(image, output_path) do
     %{image | path: output_path,
               ext: Path.extname(output_path),
               format: Map.get(image.dirty, :format, image.format),
@@ -37,11 +47,23 @@ defmodule Mogrify do
     end
   end
 
-  defp arguments(image, path) do
+  defp arguments_for_saving(image, path) do
     base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
-    additional_arguments = Enum.flat_map image.operations, fn {option,params} -> ~w(-#{option} #{params}) end
+    arguments(image) ++ base_arguments
+  end
 
-    additional_arguments ++ base_arguments
+  defp arguments_for_creating(image, path) do
+    base_arguments = ~w(#{path}/#{String.replace(image.path, " ", "\\ ")})
+    arguments(image) ++ base_arguments
+  end
+
+  defp arguments(image) do
+    Enum.flat_map(image.operations, fn {option,params} ->
+      case option do
+        :image_operator -> [params]
+        _ -> ["-#{option}", params]
+      end
+    end)
   end
 
   @doc """
@@ -183,7 +205,15 @@ defmodule Mogrify do
     %{image | operations: image.operations ++ ["auto-orient": nil]}
   end
 
+  def canvas(image, color) do
+    image_operator(image, "xc:#{color}")
+  end
+
   def custom(image, action, options \\ nil) do
     %{image | operations: image.operations ++ [{action, options}]}
+  end
+
+  def image_operator(image, operator) do
+    %{image | operations: image.operations ++ [{:image_operator, operator}]}
   end
 end
