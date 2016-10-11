@@ -25,6 +25,17 @@ defmodule Mogrify do
     image_after_command(image, output_path)
   end
 
+  @doc """
+  Creates or saves image
+
+  Uses the `convert` command, which accepts both existing images, or image
+  operators. If you have an existing image, prefer save/2.
+
+  ## Options
+
+  * `:path` - The output path of the image. Defaults to a temporary file.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  """
   def create(image, opts \\ []) do
     output_path = output_path_for(image, opts)
     System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
@@ -53,7 +64,7 @@ defmodule Mogrify do
   end
 
   defp arguments_for_creating(image, path) do
-    base_arguments = ~w(#{path}/#{String.replace(image.path, " ", "\\ ")})
+    base_arguments = ~w(#{Path.dirname(path)}/#{String.replace(Path.basename(image.path), " ", "\\ ")})
     arguments(image) ++ base_arguments
   end
 
