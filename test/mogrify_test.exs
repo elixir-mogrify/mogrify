@@ -137,8 +137,8 @@ defmodule MogrifyTest do
   end
 
   test ".custom with plus-form of a command" do
-    image_minus = open(@fixture) |> custom("raise", "50") |> save |> verbose
-    image_plus  = open(@fixture) |> custom("+raise", "50") |> save |> verbose
+    image_minus = open(@fixture) |> custom("raise", 50) |> save |> verbose
+    image_plus  = open(@fixture) |> custom("+raise", 50) |> save |> verbose
     %{size: size_minus} = File.stat! image_minus.path
     %{size: size_plus}  = File.stat! image_plus.path
     assert size_minus != size_plus

@@ -72,9 +72,9 @@ defmodule Mogrify do
     Enum.flat_map(image.operations, &normalize_arguments/1)
   end
 
-  defp normalize_arguments({:image_operator, params}), do: [params]
-  defp normalize_arguments({"+" <> option, params}), do: ["+#{option}", params]
-  defp normalize_arguments({option, params}), do: ["-#{option}", params]
+  defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
+  defp normalize_arguments({"+" <> option, params}), do: ~w(+#{option} #{params})
+  defp normalize_arguments({option, params}), do: ~w(-#{option} #{params})
 
   @doc """
   Makes a copy of original image
