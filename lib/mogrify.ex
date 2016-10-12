@@ -21,7 +21,28 @@ defmodule Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
-    System.cmd "mogrify", arguments(image, output_path), stderr_to_stdout: true
+    System.cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
+    image_after_command(image, output_path)
+  end
+
+  @doc """
+  Creates or saves image
+
+  Uses the `convert` command, which accepts both existing images, or image
+  operators. If you have an existing image, prefer save/2.
+
+  ## Options
+
+  * `:path` - The output path of the image. Defaults to a temporary file.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  """
+  def create(image, opts \\ []) do
+    output_path = output_path_for(image, opts)
+    System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
+    image_after_command(image, output_path)
+  end
+
+  defp image_after_command(image, output_path) do
     %{image | path: output_path,
               ext: Path.extname(output_path),
               format: Map.get(image.dirty, :format, image.format),
@@ -37,12 +58,22 @@ defmodule Mogrify do
     end
   end
 
-  defp arguments(image, path) do
+  defp arguments_for_saving(image, path) do
     base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
-    additional_arguments = Enum.flat_map image.operations, fn {option,params} -> ~w(-#{option} #{params}) end
-
-    additional_arguments ++ base_arguments
+    arguments(image) ++ base_arguments
   end
+
+  defp arguments_for_creating(image, path) do
+    base_arguments = ~w(#{Path.dirname(path)}/#{String.replace(Path.basename(image.path), " ", "\\ ")})
+    arguments(image) ++ base_arguments
+  end
+
+  defp arguments(image) do
+    Enum.flat_map(image.operations, &normalize_arguments/1)
+  end
+
+  defp normalize_arguments({:image_operator, params}), do: [params]
+  defp normalize_arguments({option, params}), do: ["-#{option}", params]
 
   @doc """
   Makes a copy of original image
@@ -183,7 +214,15 @@ defmodule Mogrify do
     %{image | operations: image.operations ++ ["auto-orient": nil]}
   end
 
+  def canvas(image, color) do
+    image_operator(image, "xc:#{color}")
+  end
+
   def custom(image, action, options \\ nil) do
     %{image | operations: image.operations ++ [{action, options}]}
+  end
+
+  def image_operator(image, operator) do
+    %{image | operations: image.operations ++ [{:image_operator, operator}]}
   end
 end

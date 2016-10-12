@@ -64,6 +64,16 @@ defmodule MogrifyTest do
     File.rm!(path)
   end
 
+  test ".create" do
+    path = Path.join(System.tmp_dir, "1.jpg")
+    image = %Image{path: path} |> canvas("white") |> create(path: path)
+
+    assert File.exists?(path)
+    assert %Image{path: path} = image
+
+    File.rm!(path)
+  end
+
   test ".copy" do
     image = open(@fixture) |> copy
     tmp_dir = System.tmp_dir |> Regex.escape
