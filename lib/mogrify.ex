@@ -69,13 +69,11 @@ defmodule Mogrify do
   end
 
   defp arguments(image) do
-    Enum.flat_map(image.operations, fn {option,params} ->
-      case option do
-        :image_operator -> [params]
-        _ -> ["-#{option}", params]
-      end
-    end)
+    Enum.flat_map(image.operations, &normalize_arguments/1)
   end
+
+  defp normalize_arguments({:image_operator, params}), do: [params]
+  defp normalize_arguments({option, params}), do: ["-#{option}", params]
 
   @doc """
   Makes a copy of original image
