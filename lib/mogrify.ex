@@ -73,6 +73,7 @@ defmodule Mogrify do
   end
 
   defp normalize_arguments({:image_operator, params}), do: [params]
+  defp normalize_arguments({"+" <> option, params}), do: ["+#{option}", params]
   defp normalize_arguments({option, params}), do: ["-#{option}", params]
 
   @doc """
