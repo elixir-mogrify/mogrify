@@ -143,4 +143,12 @@ defmodule MogrifyTest do
     %{size: size_plus}  = File.stat! image_plus.path
     assert size_minus != size_plus
   end
+
+  test ".custom with explicit minus-form of a command" do
+    image_implicit = open(@fixture) |> custom("raise", 50) |> save |> verbose
+    image_explicit = open(@fixture) |> custom("-raise", 50) |> save |> verbose
+    %{size: size_implicit} = File.stat! image_implicit.path
+    %{size: size_explicit} = File.stat! image_explicit.path
+    assert size_implicit == size_explicit
+  end
 end
