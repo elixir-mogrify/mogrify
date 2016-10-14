@@ -135,4 +135,20 @@ defmodule MogrifyTest do
     image = open(@fixture) |> extent("500x500") |> save |> verbose
     assert %Image{width: 500, height: 500} = image
   end
+
+  test ".custom with plus-form of a command" do
+    image_minus = open(@fixture) |> custom("raise", 50) |> save |> verbose
+    image_plus  = open(@fixture) |> custom("+raise", 50) |> save |> verbose
+    %{size: size_minus} = File.stat! image_minus.path
+    %{size: size_plus}  = File.stat! image_plus.path
+    assert size_minus != size_plus
+  end
+
+  test ".custom with explicit minus-form of a command" do
+    image_implicit = open(@fixture) |> custom("raise", 50) |> save |> verbose
+    image_explicit = open(@fixture) |> custom("-raise", 50) |> save |> verbose
+    %{size: size_implicit} = File.stat! image_implicit.path
+    %{size: size_explicit} = File.stat! image_explicit.path
+    assert size_implicit == size_explicit
+  end
 end
