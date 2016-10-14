@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 (2016-10-14)
+
+* New functions
+  * `create/2` uses `convert` CLI tool to create a new image from scratch, without requiring a base image.
+  See [mogrify_draw](https://github.com/zamith/mogrify_draw) for an example use case.
+
+* Enhancements
+  * `custom/3` supports "plus-form" arguments, e.g. `custom(image, "+raise", 50)`
+
 ## 0.4.0 (2016-08-23)
 
 * Breaking changes

@@ -15,7 +15,7 @@ You must have ImageMagick installed of course.
 Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ```elixir
-  {:mogrify, "~> 0.4.0"}
+  {:mogrify, "~> 0.5.0"}
 ```
 
 ## Examples
@@ -63,6 +63,9 @@ Getting info:
   image = open("input.jpg") |> verbose
   IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: 292, width: 300}
 ```
+
+Creating new images: See [mogrify_draw](https://github.com/zamith/mogrify_draw) for an example of generating a new image from scratch.
+
 
 ## Changelog
 
