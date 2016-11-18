@@ -73,9 +73,9 @@ defmodule Mogrify do
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
-  defp normalize_arguments({"+" <> option, params}), do: ~w(+#{option} #{params})
-  defp normalize_arguments({"-" <> option, params}), do: ~w(-#{option} #{params})
-  defp normalize_arguments({option, params}), do: ~w(-#{option} #{params})
+  defp normalize_arguments({"+" <> option, params}), do: ["+" <> option, params]
+  defp normalize_arguments({"-" <> option, params}), do: ["-" <> option, params]
+  defp normalize_arguments({option, params}), do: ["-" <> option, params]
 
   @doc """
   Makes a copy of original image
