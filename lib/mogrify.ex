@@ -65,15 +65,11 @@ defmodule Mogrify do
 
   defp arguments_for_creating(image, path) do
     base_arguments = ~w(#{Path.dirname(path)}/#{String.replace(Path.basename(image.path), " ", "\\ ")})
-    a = arguments(image) ++ base_arguments
-    IO.inspect a
-    a
+    arguments(image) ++ base_arguments
   end
 
   defp arguments(image) do
-    a = Enum.flat_map(image.operations, &normalize_arguments/1)
-    IO.inspect a
-    a
+    Enum.flat_map(image.operations, &normalize_arguments/1)
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
