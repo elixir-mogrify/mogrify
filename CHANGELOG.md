@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 (2016-11-19)
+
+* Fix for `custom/3` handling of options and params with whitespace.
+
 ## 0.5.0 (2016-10-14)
 
 * New functions
