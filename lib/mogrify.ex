@@ -59,12 +59,12 @@ defmodule Mogrify do
   end
 
   defp arguments_for_saving(image, path) do
-    base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
+    base_arguments = ["-write", path, image.path]
     arguments(image) ++ base_arguments
   end
 
   defp arguments_for_creating(image, path) do
-    base_arguments = ~w(#{Path.dirname(path)}/#{String.replace(Path.basename(image.path), " ", "\\ ")})
+    base_arguments = ["#{Path.dirname(path)}/#{Path.basename(image.path)}"]
     arguments(image) ++ base_arguments
   end
 
@@ -104,7 +104,7 @@ defmodule Mogrify do
   Provides detailed information about the image
   """
   def verbose(image) do
-    args = ~w(-verbose -write #{dev_null} #{String.replace(image.path, " ", "\\ ")})
+    args = ~w(-verbose -write #{dev_null}) ++ [image.path]
     {output, 0} = System.cmd "mogrify", args, stderr_to_stdout: true
 
     info =
