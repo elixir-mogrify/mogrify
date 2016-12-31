@@ -5,8 +5,10 @@ defmodule MogrifyTest do
   use ExUnit.Case, async: true
 
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
-  @fixture_with_space Path.join(__DIR__, "fixtures/ben der.jpg")
+  @fixture_with_space Path.join(__DIR__, "fixtures/image with space in name/ben der.jpg")
   @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
+  @temp_test_directory "#{System.tmp_dir}/mogrify test folder"
+  @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
   test ".open" do
     image = open("./test/fixtures/bender.jpg")
@@ -17,7 +19,7 @@ defmodule MogrifyTest do
   end
 
   test ".open when file name has spaces" do
-    image = open("./test/fixtures/ben der.jpg")
+    image = open("./test/fixtures/image with space in name/ben der.jpg")
     assert %Image{path: @fixture_with_space, ext: ".jpg"} = image
 
     image = open(@fixture_with_space)
@@ -41,13 +43,14 @@ defmodule MogrifyTest do
   end
 
   test ".save when file name has spaces" do
-    path = Path.join(System.tmp_dir, "1 1.jpg")
+    File.mkdir!(@temp_test_directory)
 
-    image = open(@fixture) |> save(path: path)
+    image = open(@fixture) |> save(path: @temp_image_with_space)
 
-    assert File.regular?(path)
-    assert %Image{path: path} = image
-    File.rm!(path)
+    assert File.regular?(@temp_image_with_space)
+    assert %Image{path: @temp_image_with_space} = image
+
+    File.rm_rf!(@temp_test_directory)
   end
 
   test ".save in place" do
@@ -64,14 +67,14 @@ defmodule MogrifyTest do
 
   test ".save in place when file name has spaces" do
     # setup, make a copy
-    path = Path.join(System.tmp_dir, "1 1.jpg")
-    open(@fixture) |> save(path: path)
+    File.mkdir!(@temp_test_directory)
+    open(@fixture) |> save(path: @temp_image_with_space)
 
     # test begins
-    image = open(path) |> resize("600x600") |> save(in_place: true) |> verbose
-    assert %Image{path: path, height: 584, width: 600} = image
+    image = open(@temp_image_with_space) |> resize("600x600") |> save(in_place: true) |> verbose
+    assert %Image{path: @temp_image_with_space, height: 584, width: 600} = image
 
-    File.rm!(path)
+    File.rm_rf!(@temp_test_directory)
   end
 
   test ".save :in_place ignores :path option" do
@@ -88,14 +91,14 @@ defmodule MogrifyTest do
 
   test ".save :in_place ignores :path option when file name has spaces" do
     # setup, make a copy
-    path = Path.join(System.tmp_dir, "1 1.jpg")
-    open(@fixture) |> save(path: path)
+    File.mkdir!(@temp_test_directory)
+    open(@fixture) |> save(path: @temp_image_with_space)
 
     # test begins
-    image = open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
-    assert %Image{path: path, height: 584, width: 600} = image
+    image = open(@temp_image_with_space) |> resize("600x600") |> save(in_place: true, path: "#{@temp_image_with_space}-ignore") |> verbose
+    assert %Image{path: @temp_image_with_space, height: 584, width: 600} = image
 
-    File.rm!(path)
+    File.rm_rf!(@temp_test_directory)
   end
 
   test ".create" do
@@ -109,13 +112,13 @@ defmodule MogrifyTest do
   end
 
   test ".create when file name has spaces" do
-    path = Path.join(System.tmp_dir, "1 1.jpg")
-    image = %Image{path: path} |> canvas("white") |> create(path: path)
+    File.mkdir!(@temp_test_directory)
+    image = %Image{path: @temp_image_with_space} |> canvas("white") |> create(path: @temp_image_with_space)
 
-    assert File.exists?(path)
-    assert %Image{path: path} = image
+    assert File.exists?(@temp_image_with_space)
+    assert %Image{path: @temp_image_with_space} = image
 
-    File.rm!(path)
+    File.rm_rf!(@temp_test_directory)
   end
 
   test ".copy" do
