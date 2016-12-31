@@ -86,6 +86,11 @@ defmodule MogrifyTest do
     assert %Image{format: "jpeg", height: 292, width: 300, animated: false} = verbose(image)
   end
 
+  test ".verbose when file name has spaces" do
+    image = open(@fixture_with_space)
+    assert %Image{format: "jpeg", height: 292, width: 300, animated: false} = verbose(image)
+  end
+
   test ".verbose animated" do
     image = open(@fixture_animated)
     assert %Image{format: "gif", animated: true} = verbose(image)
