@@ -59,7 +59,7 @@ defmodule Mogrify do
   end
 
   defp arguments_for_saving(image, path) do
-    base_arguments = ~w(-write #{path} #{String.replace(image.path, " ", "\\ ")})
+    base_arguments = ["-write", path, image.path]
     arguments(image) ++ base_arguments
   end
 

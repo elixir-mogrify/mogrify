@@ -40,6 +40,16 @@ defmodule MogrifyTest do
     File.rm!(path)
   end
 
+  test ".save when file name has spaces" do
+    path = Path.join(System.tmp_dir, "1 1.jpg")
+
+    image = open(@fixture) |> save(path: path)
+
+    assert File.regular?(path)
+    assert %Image{path: path} = image
+    File.rm!(path)
+  end
+
   test ".save in place" do
     # setup, make a copy
     path = Path.join(System.tmp_dir, "1.jpg")
@@ -52,9 +62,33 @@ defmodule MogrifyTest do
     File.rm!(path)
   end
 
+  test ".save in place when file name has spaces" do
+    # setup, make a copy
+    path = Path.join(System.tmp_dir, "1 1.jpg")
+    open(@fixture) |> save(path: path)
+
+    # test begins
+    image = open(path) |> resize("600x600") |> save(in_place: true) |> verbose
+    assert %Image{path: path, height: 584, width: 600} = image
+
+    File.rm!(path)
+  end
+
   test ".save :in_place ignores :path option" do
     # setup, make a copy
     path = Path.join(System.tmp_dir, "1.jpg")
+    open(@fixture) |> save(path: path)
+
+    # test begins
+    image = open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
+    assert %Image{path: path, height: 584, width: 600} = image
+
+    File.rm!(path)
+  end
+
+  test ".save :in_place ignores :path option when file name has spaces" do
+    # setup, make a copy
+    path = Path.join(System.tmp_dir, "1 1.jpg")
     open(@fixture) |> save(path: path)
 
     # test begins
