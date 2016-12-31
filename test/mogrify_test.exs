@@ -16,7 +16,7 @@ defmodule MogrifyTest do
     assert %Image{path: @fixture, ext: ".jpg"} = image
   end
 
-  test ".open with space" do
+  test ".open when file name has spaces" do
     image = open("./test/fixtures/ben der.jpg")
     assert %Image{path: @fixture_with_space, ext: ".jpg"} = image
 
