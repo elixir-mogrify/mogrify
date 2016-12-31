@@ -64,7 +64,7 @@ defmodule Mogrify do
   end
 
   defp arguments_for_creating(image, path) do
-    base_arguments = ~w(#{Path.dirname(path)}/#{String.replace(Path.basename(image.path), " ", "\\ ")})
+    base_arguments = ["#{Path.dirname(path)}/#{Path.basename(image.path)}"]
     arguments(image) ++ base_arguments
   end
 
