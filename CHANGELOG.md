@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.3 (2016-01-07)
+## 0.5.3 (2017-01-07)
 
 * Fix Elixir 1.4 warnings.
 * Fix test failures on OS X.
