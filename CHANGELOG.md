@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3 (2016-01-07)
+
+* Fix Elixir 1.4 warnings.
+* Fix test failures on OS X.
+
 ## 0.5.2 (2016-12-31)
 
 * Fix for spaces in file paths.
