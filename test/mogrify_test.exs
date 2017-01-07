@@ -43,7 +43,7 @@ defmodule MogrifyTest do
   end
 
   test ".save when file name has spaces" do
-    File.mkdir!(@temp_test_directory)
+    File.mkdir_p!(@temp_test_directory)
 
     image = open(@fixture) |> save(path: @temp_image_with_space)
 
@@ -67,7 +67,7 @@ defmodule MogrifyTest do
 
   test ".save in place when file name has spaces" do
     # setup, make a copy
-    File.mkdir!(@temp_test_directory)
+    File.mkdir_p!(@temp_test_directory)
     open(@fixture) |> save(path: @temp_image_with_space)
 
     # test begins
@@ -91,7 +91,7 @@ defmodule MogrifyTest do
 
   test ".save :in_place ignores :path option when file name has spaces" do
     # setup, make a copy
-    File.mkdir!(@temp_test_directory)
+    File.mkdir_p!(@temp_test_directory)
     open(@fixture) |> save(path: @temp_image_with_space)
 
     # test begins
@@ -112,7 +112,7 @@ defmodule MogrifyTest do
   end
 
   test ".create when file name has spaces" do
-    File.mkdir!(@temp_test_directory)
+    File.mkdir_p!(@temp_test_directory)
     image = %Image{path: @temp_image_with_space} |> canvas("white") |> create(path: @temp_image_with_space)
 
     assert File.exists?(@temp_image_with_space)
