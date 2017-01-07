@@ -104,7 +104,7 @@ defmodule Mogrify do
   Provides detailed information about the image
   """
   def verbose(image) do
-    args = ~w(-verbose -write #{dev_null}) ++ [image.path]
+    args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
     {output, 0} = System.cmd "mogrify", args, stderr_to_stdout: true
 
     info =
