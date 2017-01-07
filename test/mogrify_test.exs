@@ -7,7 +7,7 @@ defmodule MogrifyTest do
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "fixtures/image with space in name/ben der.jpg")
   @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
-  @temp_test_directory "#{System.tmp_dir}/mogrify test folder"
+  @temp_test_directory "#{System.tmp_dir}/mogrify test folder" |> Path.expand
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
   test ".open" do
