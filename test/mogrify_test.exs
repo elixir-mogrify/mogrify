@@ -210,4 +210,9 @@ defmodule MogrifyTest do
     %{size: size_explicit} = File.stat! image_explicit.path
     assert size_implicit == size_explicit
   end
+
+  @tag timeout: 5000
+  test ".auto_orient should not hang" do
+    open(@fixture) |> auto_orient |> save
+  end
 end
