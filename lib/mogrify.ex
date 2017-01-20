@@ -70,6 +70,7 @@ defmodule Mogrify do
 
   defp arguments(image) do
     Enum.flat_map(image.operations, &normalize_arguments/1)
+    |> Enum.filter(fn(x) -> x != "" end)
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
