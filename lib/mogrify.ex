@@ -70,14 +70,16 @@ defmodule Mogrify do
 
   defp arguments(image) do
     Enum.flat_map(image.operations, &normalize_arguments/1)
-    |> Enum.filter(fn(x) -> x != "" end)
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
-  defp normalize_arguments({"annotate", params}), do: ~w(-annotate #{params})
-  defp normalize_arguments({"+" <> option, params}), do: ["+" <> to_string(option), to_string(params)]
-  defp normalize_arguments({"-" <> option, params}), do: ["-" <> to_string(option), to_string(params)]
-  defp normalize_arguments({option, params}), do: ["-" <> to_string(option), to_string(params)]
+  defp normalize_arguments({"annotate", params}),      do: ~w(-annotate #{params})
+  defp normalize_arguments({"+" <> option, nil}),      do: ["+#{option}"]
+  defp normalize_arguments({"-" <> option, nil}),      do: ["-#{option}"]
+  defp normalize_arguments({option, nil}),             do: ["-#{option}"]
+  defp normalize_arguments({"+" <> option, params}),   do: ["+#{option}", to_string(params)]
+  defp normalize_arguments({"-" <> option, params}),   do: ["-#{option}", to_string(params)]
+  defp normalize_arguments({option, params}),          do: ["-#{option}", to_string(params)]
 
   @doc """
   Makes a copy of original image
