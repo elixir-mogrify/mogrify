@@ -10,6 +10,14 @@ defmodule MogrifyTest do
   @temp_test_directory "#{System.tmp_dir}/mogrify test folder" |> Path.expand
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
+  setup do
+    tmp_copy = open(@fixture) |> copy
+
+    on_exit fn ->
+      File.cp tmp_copy.path, @fixture
+    end
+  end
+
   test ".open" do
     image = open("./test/fixtures/bender.jpg")
     assert %Image{path: @fixture, ext: ".jpg"} = image
