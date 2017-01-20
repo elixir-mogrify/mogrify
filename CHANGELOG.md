@@ -1,17 +1,21 @@
 # Changelog
 
+## 0.5.4 (2017-01-20)
+
+* Fix hang with options without params (such as `-auto-orient`)
+
 ## 0.5.3 (2017-01-07)
 
-* Fix Elixir 1.4 warnings.
-* Fix test failures on OS X.
+* Fix Elixir 1.4 warnings
+* Fix test failures on OS X
 
 ## 0.5.2 (2016-12-31)
 
-* Fix for spaces in file paths.
+* Fix for spaces in file paths
 
 ## 0.5.1 (2016-11-19)
 
-* Fix for `custom/3` handling of options and params with whitespace.
+* Fix for `custom/3` handling of options and params with whitespace
 
 ## 0.5.0 (2016-10-14)
 
