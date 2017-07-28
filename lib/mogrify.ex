@@ -99,7 +99,7 @@ defmodule Mogrify do
 
   defp do_temporary_path_for(path) do
     name = Path.basename(path)
-    random = :crypto.rand_uniform(100_000, 999_999)
+    random = :rand.uniform(999_999)
     Path.join(System.tmp_dir, "#{random}-#{name}")
   end
 
