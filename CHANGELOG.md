@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.5 (2017-07-27)
+
+* Fix Erlang 19 compiler warning
+
 ## 0.5.4 (2017-01-20)
 
 * Fix hang with options without params (such as `-auto-orient`)
