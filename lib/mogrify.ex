@@ -42,12 +42,61 @@ defmodule Mogrify do
     image_after_command(image, output_path)
   end
 
+  @doc """
+  Returns the histogram of the image
+
+  Runs ImageMagick's `histogram:info:-` command
+  Results are returned as a list of maps where each map includes keys red, blue, green, hex and count
+
+  Example:
+
+  iex> open("test/fixtures/rbgw.png") |> histogram
+  [
+    %{"blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
+    %{"blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
+    %{"blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
+    %{"blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
+  ]
+
+  """
+  def histogram(image) do
+    img = image |> custom("format", "%c")
+    args = arguments(img) ++ [image.path, "histogram:info:-"]
+    System.cmd("convert", args, stderr_to_stdout: false)
+    |> elem(0)
+    |> process_histogram_output
+  end
+
   defp image_after_command(image, output_path) do
     %{image | path: output_path,
               ext: Path.extname(output_path),
               format: Map.get(image.dirty, :format, image.format),
               operations: [],
               dirty: %{}}
+  end
+
+  defp histogram_integerify(hist) do
+    hist
+    |> Enum.into %{}, fn {k,v} ->
+      if (k == "hex") do
+        { k, v }
+      else
+        { k, (v |> String.trim |> String.to_integer) }
+      end
+    end
+  end
+
+  defp extract_histogram_data(entry) do
+    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)\)\s+(?<hex>\#[abcdef\d]{6})\s+/
+    |> Regex.named_captures(entry |> String.downcase)
+    |> histogram_integerify
+  end
+
+  defp process_histogram_output(histogram_output) do
+    histogram_output
+    |> String.split("\n")
+    |> Enum.reject( fn (s) -> (s |> String.length) == 0 end )
+    |> Enum.map(&extract_histogram_data/1)
   end
 
   defp output_path_for(image, save_opts) do
@@ -74,6 +123,7 @@ defmodule Mogrify do
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
   defp normalize_arguments({"annotate", params}),      do: ~w(-annotate #{params})
+  defp normalize_arguments({"histogram:" <> option, nil}),      do: ["histogram:#{option}"]
   defp normalize_arguments({"+" <> option, nil}),      do: ["+#{option}"]
   defp normalize_arguments({"-" <> option, nil}),      do: ["-#{option}"]
   defp normalize_arguments({option, nil}),             do: ["-#{option}"]
