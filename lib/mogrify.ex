@@ -54,11 +54,12 @@ defmodule Mogrify do
 
   iex> open("test/fixtures/rbgw.png") |> histogram
   [
-    %{"blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
-    %{"blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
-    %{"blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
-    %{"blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
+    %{"alpha" => 0, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
+    %{"alpha" => 0, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
+    %{"alpha" => 0, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
+    %{"alpha" => 0, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
   ]
+
 
   """
   def histogram(image) do
@@ -77,21 +78,21 @@ defmodule Mogrify do
               dirty: %{}}
   end
 
-  defp histogram_integerify(hist) do
-    hist
-    |> Enum.into(%{}, fn {k,v} ->
-      if (k == "hex") do
-        { k, v }
-      else
-        { k, (v |> Compat.string_trim |> String.to_integer) }
-      end
-    end)
+  defp cleanse_histogram(hist) do
+    hist 
+    |> Enum.into(%{}, &clean_histogram_entry/1)
+    |> stringify_keys
   end
 
+  defp clean_histogram_entry( { "hex", v } ), do: { :hex, v }
+  defp clean_histogram_entry( { k, "" } ), do: { k |> String.to_atom, 0 }
+  defp clean_histogram_entry( { k, v } ), do: { k |> String.to_atom, (v |> String.to_integer) }
+
   defp extract_histogram_data(entry) do
-    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)\)\s+(?<hex>\#[abcdef\d]{6})\s+/
-    |> Regex.named_captures(entry |> String.downcase)
-    |> histogram_integerify
+    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)(,(?<alpha>[\d\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
+    |> Regex.named_captures(entry)
+    |> Enum.map( fn {k,v} -> { k, v |> String.trim } end )
+    |> cleanse_histogram
   end
 
   defp process_histogram_output(histogram_output) do
@@ -310,4 +311,27 @@ defmodule Mogrify do
       ["", "-"]
     end
   end
+
+  @doc """
+  Convert map atom keys to strings
+  """
+  defp stringify_keys(nil), do: nil
+
+  defp stringify_keys(map = %{}) do
+    map
+    |> Enum.map(fn {k, v} -> {Atom.to_string(k), stringify_keys(v)} end)
+    |> Enum.into(%{})
+  end
+
+  # Walk the list and stringify the keys of
+  # of any map members
+  defp stringify_keys([head | rest]) do
+    [stringify_keys(head) | stringify_keys(rest)]
+  end
+
+  defp stringify_keys(not_a_map) do
+    not_a_map
+  end
+
+
 end
