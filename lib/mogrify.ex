@@ -82,7 +82,7 @@ defmodule Mogrify do
       if (k == "hex") do
         { k, v }
       else
-        { k, (v |> String.trim |> String.to_integer) }
+        { k, (v |> Compat.string_trim |> String.to_integer) }
       end
     end
   end

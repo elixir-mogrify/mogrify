@@ -11,4 +11,13 @@ defmodule Mogrify.Compat do
     end
   end
 
+  def string_trim(string) do
+    Code.ensure_loaded(String)
+    if function_exported?(String, :trim, 1) do
+      String.trim(string)
+    else
+      apply(String, :strip, [string])
+    end
+  end
+
 end
