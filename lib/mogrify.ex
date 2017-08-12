@@ -78,13 +78,13 @@ defmodule Mogrify do
 
   defp histogram_integerify(hist) do
     hist
-    |> Enum.into %{}, fn {k,v} ->
+    |> Enum.into(%{}, fn {k,v} ->
       if (k == "hex") do
         { k, v }
       else
         { k, (v |> Compat.string_trim |> String.to_integer) }
       end
-    end
+    end)
   end
 
   defp extract_histogram_data(entry) do
