@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.6 (2017-08-12)
+
+* Added `histogram/1`
+
 ## 0.5.5 (2017-07-27)
 
 * Fix Erlang 19 compiler warning
