@@ -1,4 +1,5 @@
 defmodule Mogrify do
+  alias Mogrify.Compat
   alias Mogrify.Image
 
   @doc """
@@ -77,13 +78,13 @@ defmodule Mogrify do
 
   defp histogram_integerify(hist) do
     hist
-    |> Enum.into %{}, fn {k,v} ->
+    |> Enum.into(%{}, fn {k,v} ->
       if (k == "hex") do
         { k, v }
       else
-        { k, (v |> String.trim |> String.to_integer) }
+        { k, (v |> Compat.string_trim |> String.to_integer) }
       end
-    end
+    end)
   end
 
   defp extract_histogram_data(entry) do
@@ -149,18 +150,8 @@ defmodule Mogrify do
 
   defp do_temporary_path_for(path) do
     name = Path.basename(path)
-    random = rand_uniform(999_999)
+    random = Compat.rand_uniform(999_999)
     Path.join(System.tmp_dir, "#{random}-#{name}")
-  end
-
-  defp rand_uniform(high) do
-    Code.ensure_loaded(:rand)
-    if function_exported?(:rand, :uniform, 1) do
-      :rand.uniform(high)
-    else
-      # Erlang/OTP < 19
-      apply(:crypto, :rand_uniform, [1, high])
-    end
   end
 
   @doc """
