@@ -1,6 +1,7 @@
 defmodule MogrifyTest do
   import Mogrify
   alias Mogrify.Image
+  use Mogrify.Options
 
   use ExUnit.Case, async: true
 
@@ -221,6 +222,18 @@ defmodule MogrifyTest do
       %{"blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
     ]
     assert hist == expected
+  end
+
+  test "allows to pass options to command throw add_option" do
+    rotate_image = open(@fixture) |> add_option(option_rotate("-90>"))
+
+    assert rotate_image.operations == [{"-rotate", "-90>"}]
+  end
+
+  test "raise ArgumentError when no argument is passed to option when is required " do
+    assert_raise ArgumentError, "the option rotate need arguments. Be sure to pass arguments to option_rotate(arg)", fn ->
+      open(@fixture) |> add_option(option_rotate())
+    end
   end
 
   @tag timeout: 5000
