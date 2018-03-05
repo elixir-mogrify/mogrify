@@ -296,8 +296,18 @@ defmodule Mogrify do
     case valid_option?(option) do
       true -> option
       false ->
-        option_name = name |> String.replace("-", "")
-        raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{option_name}(arg)"
+        [prefix, leading] = extract_prefix_and_leading(name)
+        option_name = name |> String.replace_leading(leading, "")
+        raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
+    end
+  end
+
+  defp extract_prefix_and_leading(name) do
+    case String.contains?(name, "+") do
+      true ->
+        ["plus_", "+"]
+      false ->
+        ["", "-"]
     end
   end
 end

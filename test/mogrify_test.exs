@@ -236,6 +236,12 @@ defmodule MogrifyTest do
     end
   end
 
+  test "raise ArgumentError when no argument is passed to option when is required and return correct message for options with plus sign" do
+    assert_raise ArgumentError, "the option gamma need arguments. Be sure to pass arguments to option_plus_gamma(arg)", fn ->
+      open(@fixture) |> add_option(option_plus_gamma())
+    end
+  end
+
   @tag timeout: 5000
   test ".auto_orient should not hang" do
     open(@fixture) |> auto_orient |> save
