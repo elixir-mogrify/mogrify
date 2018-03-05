@@ -1,6 +1,7 @@
 defmodule Mogrify do
   alias Mogrify.Compat
   alias Mogrify.Image
+  alias Mogrify.Option
 
   @doc """
   Opens image source
@@ -275,11 +276,37 @@ defmodule Mogrify do
     image_operator(image, "xc:#{color}")
   end
 
+  def add_option(image, option) do
+    validate_option!(option)
+    custom(image, option.name, option.argument)
+  end
+
   def custom(image, action, options \\ nil) do
     %{image | operations: image.operations ++ [{action, options}]}
   end
 
   def image_operator(image, operator) do
     %{image | operations: image.operations ++ [{:image_operator, operator}]}
+  end
+
+  defp valid_option?(%Option{require_arg: true, argument: nil}), do: false
+  defp valid_option?(_), do: true
+
+  defp validate_option!(%Option{name: name} = option) do
+    if valid_option?(option) do
+      option
+    else
+      [prefix, leading] = extract_prefix_and_leading(name)
+      option_name = name |> String.replace_leading(leading, "") |> String.replace("-", "_")
+      raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
+    end
+  end
+
+  defp extract_prefix_and_leading(name) do
+    if String.contains?(name, "+") do
+      ["plus_", "+"]
+    else
+      ["", "-"]
+    end
   end
 end
