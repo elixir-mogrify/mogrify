@@ -3,6 +3,7 @@ defmodule Mogrify.Options do
     quote do
       import Mogrify.Options.Transform
       import Mogrify.Options.Color
+      import Mogrify.Options.Filter
     end
   end
 end

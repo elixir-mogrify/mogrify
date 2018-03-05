@@ -297,7 +297,7 @@ defmodule Mogrify do
       true -> option
       false ->
         [prefix, leading] = extract_prefix_and_leading(name)
-        option_name = name |> String.replace_leading(leading, "")
+        option_name = name |> String.replace_leading(leading, "") |> String.replace("-", "_")
         raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
     end
   end

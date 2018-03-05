@@ -242,6 +242,12 @@ defmodule MogrifyTest do
     end
   end
 
+  test "raise ArgumentError when no argument is passed to option when is required and return correct message for options name with hyphens in the middle of the name" do
+    assert_raise ArgumentError, "the option gaussian_blur need arguments. Be sure to pass arguments to option_gaussian_blur(arg)", fn ->
+      open(@fixture) |> add_option(option_gaussian_blur())
+    end
+  end
+
   @tag timeout: 5000
   test ".auto_orient should not hang" do
     open(@fixture) |> auto_orient |> save
