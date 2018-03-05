@@ -293,21 +293,20 @@ defmodule Mogrify do
   defp valid_option?(_), do: true
 
   defp validate_option!(%Option{name: name} = option) do
-    case valid_option?(option) do
-      true -> option
-      false ->
-        [prefix, leading] = extract_prefix_and_leading(name)
-        option_name = name |> String.replace_leading(leading, "") |> String.replace("-", "_")
-        raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
+    if valid_option?(option) do
+      option
+    else
+      [prefix, leading] = extract_prefix_and_leading(name)
+      option_name = name |> String.replace_leading(leading, "") |> String.replace("-", "_")
+      raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
     end
   end
 
   defp extract_prefix_and_leading(name) do
-    case String.contains?(name, "+") do
-      true ->
-        ["plus_", "+"]
-      false ->
-        ["", "-"]
+    if String.contains?(name, "+") do
+      ["plus_", "+"]
+    else
+      ["", "-"]
     end
   end
 end
