@@ -16,6 +16,7 @@ defmodule Mogrify.Compat do
     if function_exported?(String, :trim, 1) do
       String.trim(string)
     else
+      # Elixir < 1.3
       apply(String, :strip, [string])
     end
   end
