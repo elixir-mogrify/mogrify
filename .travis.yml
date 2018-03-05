@@ -1,8 +1,8 @@
 language: elixir
 matrix:
   include:
-    - otp_release: 17.4
-      elixir: 1.0
+    - otp_release: 18.0
+      elixir: 1.2
     - otp_release: 20.0
       elixir: 1.4
 before_install:
