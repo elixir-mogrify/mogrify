@@ -277,7 +277,7 @@ defmodule Mogrify do
   end
 
   def add_option(image, option) do
-    validate_option(option)
+    validate_option!(option)
     custom(image, option.name, option.argument)
   end
 
@@ -289,9 +289,15 @@ defmodule Mogrify do
     %{image | operations: image.operations ++ [{:image_operator, operator}]}
   end
 
-  defp validate_option(%Option{name: name, require_arg: true, argument: nil}) do
-    option_name = name |> String.replace("-", "")
-    raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{option_name}(arg)"
+  defp valid_option?(%Option{require_arg: true, argument: nil}), do: false
+  defp valid_option?(_), do: true
+
+  defp validate_option!(%Option{name: name} = option) do
+    case valid_option?(option) do
+      true -> option
+      false ->
+        option_name = name |> String.replace("-", "")
+        raise ArgumentError, message: "the option #{option_name} need arguments. Be sure to pass arguments to option_#{option_name}(arg)"
+    end
   end
-  defp validate_option(_), do: nil
 end
