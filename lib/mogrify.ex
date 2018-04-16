@@ -126,6 +126,7 @@ defmodule Mogrify do
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
   defp normalize_arguments({"annotate", params}),      do: ~w(-annotate #{params})
   defp normalize_arguments({"histogram:" <> option, nil}),      do: ["histogram:#{option}"]
+  defp normalize_arguments({"pango", params}),      do: ["pango:#{params}"]
   defp normalize_arguments({"+" <> option, nil}),      do: ["+#{option}"]
   defp normalize_arguments({"-" <> option, nil}),      do: ["-#{option}"]
   defp normalize_arguments({option, nil}),             do: ["-#{option}"]
