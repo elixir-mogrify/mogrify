@@ -123,6 +123,43 @@ defmodule MogrifyTest do
     File.rm_rf!(@temp_test_directory)
   end
 
+  test "pango success" do
+    path = Path.join(System.tmp_dir, "1.jpg")
+    image = %Image{path: path} |> custom("pango", ~S(<span foreground="yellow">hello test</span>)) |> create(path: path)
+
+    assert File.exists?(path) == true
+    assert %Image{path: ^path} = image
+
+    File.rm!(path)
+  end
+
+  test "pango by using single quotes" do
+    path = Path.join(System.tmp_dir, "1.jpg")
+    image = %Image{path: path} |> custom("pango", ~S('<span foreground="yellow">hello test</span>')) |> create(path: path)
+
+    assert File.exists?(path) == true
+    assert %Image{path: ^path} = image
+
+    File.rm!(path)
+  end
+
+  test "pango by wrapping in <markup /> tags" do
+    path = Path.join(System.tmp_dir, "1.jpg")
+    image = %Image{path: path} |> custom("pango", ~S(<markup><span foreground="yellow">hello test</span></markup>')) |> create(path: path)
+
+    assert File.exists?(path) == true
+    assert %Image{path: ^path} = image
+
+    File.rm!(path)
+  end
+
+  test "pango with invalid markup" do
+    path = Path.join(System.tmp_dir, "1.jpg")
+    %Image{path: path} |> custom("pango", ~S(<span foreground="yellow">hello test)) |> create(path: path)
+
+    assert File.exists?(path) == false
+  end
+
   test ".copy" do
     image = open(@fixture) |> copy
     tmp_dir = System.tmp_dir |> Regex.escape
