@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 (2018-04-17)
+
+* Breaking changes
+  * Requires Elixir 1.2 or higher
+
+* Enhancements
+  * Added support for Pango via `custom(image, "pango", ...)` combined with `create/2`. See README for an example.
+
 ## 0.5.6 (2017-08-12)
 
 * Added `histogram/1`
