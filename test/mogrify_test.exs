@@ -39,8 +39,8 @@ defmodule MogrifyTest do
 
     image = open(@fixture) |> save(path: path)
 
-    assert File.regular?(path)
-    assert %Image{path: path} = image
+    assert File.regular?(path) == true
+    assert %Image{path: ^path} = image
     File.rm!(path)
   end
 
@@ -49,7 +49,7 @@ defmodule MogrifyTest do
 
     image = open(@fixture) |> save(path: @temp_image_with_space)
 
-    assert File.regular?(@temp_image_with_space)
+    assert File.regular?(@temp_image_with_space) == true
     assert %Image{path: @temp_image_with_space} = image
 
     File.rm_rf!(@temp_test_directory)
@@ -62,7 +62,7 @@ defmodule MogrifyTest do
 
     # test begins
     image = open(path) |> resize("600x600") |> save(in_place: true) |> verbose
-    assert %Image{path: path, height: 584, width: 600} = image
+    assert %Image{path: ^path, height: 584, width: 600} = image
 
     File.rm!(path)
   end
@@ -86,7 +86,7 @@ defmodule MogrifyTest do
 
     # test begins
     image = open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
-    assert %Image{path: path, height: 584, width: 600} = image
+    assert %Image{path: ^path, height: 584, width: 600} = image
 
     File.rm!(path)
   end
@@ -107,8 +107,8 @@ defmodule MogrifyTest do
     path = Path.join(System.tmp_dir, "1.jpg")
     image = %Image{path: path} |> canvas("white") |> create(path: path)
 
-    assert File.exists?(path)
-    assert %Image{path: path} = image
+    assert File.exists?(path) == true
+    assert %Image{path: ^path} = image
 
     File.rm!(path)
   end
@@ -117,7 +117,7 @@ defmodule MogrifyTest do
     File.mkdir_p!(@temp_test_directory)
     image = %Image{path: @temp_image_with_space} |> canvas("white") |> create(path: @temp_image_with_space)
 
-    assert File.exists?(@temp_image_with_space)
+    assert File.exists?(@temp_image_with_space) == true
     assert %Image{path: @temp_image_with_space} = image
 
     File.rm_rf!(@temp_test_directory)
