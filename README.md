@@ -64,6 +64,21 @@ Getting info:
   IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: 292, width: 300}
 ```
 
+Using custom commands to create an image with markup:
+
+```elixir
+  import Mogrify
+
+  %Mogrify.Image{path: "test.png", ext: "png"}
+  |> custom("size", "280x280")
+  |> custom("background", "#000000")
+  |> custom("gravity", "center")
+  |> custom("fill", "white")
+  |> custom("font", "DejaVu-Sans-Mono-Bold")
+  |> custom("pango", ~S(<span foreground="yellow">hello markup world</span>))
+  |> create(path: ".")
+```
+
 Creating new images: See [mogrify_draw](https://github.com/zamith/mogrify_draw) for an example of generating a new image from scratch.
 
 
