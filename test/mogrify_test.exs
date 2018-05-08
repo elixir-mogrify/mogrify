@@ -9,6 +9,7 @@ defmodule MogrifyTest do
   @fixture_with_space Path.join(__DIR__, "fixtures/image with space in name/ben der.jpg")
   @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
   @fixture_rgbw Path.join(__DIR__, "fixtures/rgbw.png")
+  @fixture_rgbwa Path.join(__DIR__, "fixtures/rgbwa.png")
   @temp_test_directory "#{System.tmp_dir}/mogrify test folder" |> Path.expand
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
@@ -250,13 +251,24 @@ defmodule MogrifyTest do
     assert size_implicit == size_explicit
   end
 
-  test ".histogram" do
+  test ".histogram with no transparency" do
     hist = open(@fixture_rgbw) |> histogram |> Enum.sort_by( fn %{"hex" => hex} -> hex end )
     expected = [
-      %{"blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
-      %{"blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
-      %{"blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
-      %{"blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
+      %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000FF", "red" => 0},
+      %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00FF00", "red" => 0},
+      %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#FF0000", "red" => 255},
+      %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#FFFFFF", "red" => 255}
+    ]
+    assert hist == expected
+  end
+
+  test ".histogram with transparency" do
+    hist = open(@fixture_rgbwa) |> histogram |> Enum.sort_by( fn %{"hex" => hex} -> hex end )
+    expected = [
+      %{"alpha" => 189, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000FFBD", "red" => 0},
+      %{"alpha" => 189, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00FF00BD", "red" => 0},
+      %{"alpha" => 189, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#FF0000BD", "red" => 255},
+      %{"alpha" => 189, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#FFFFFFBD", "red" => 255}
     ]
     assert hist == expected
   end

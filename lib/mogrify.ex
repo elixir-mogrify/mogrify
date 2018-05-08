@@ -54,11 +54,12 @@ defmodule Mogrify do
 
   iex> open("test/fixtures/rbgw.png") |> histogram
   [
-    %{"blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
-    %{"blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
-    %{"blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
-    %{"blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
+    %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
+    %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
+    %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
+    %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
   ]
+
 
   """
   def histogram(image) do
@@ -77,21 +78,21 @@ defmodule Mogrify do
               dirty: %{}}
   end
 
-  defp histogram_integerify(hist) do
+  defp cleanse_histogram(hist) do
     hist
-    |> Enum.into(%{}, fn {k,v} ->
-      if (k == "hex") do
-        { k, v }
-      else
-        { k, (v |> Compat.string_trim |> String.to_integer) }
-      end
-    end)
+    |> Enum.into(%{}, &clean_histogram_entry/1)
   end
 
+  defp clean_histogram_entry( { "hex", v } ), do: { "hex", v }
+  defp clean_histogram_entry( { "alpha", "" } ), do: { "alpha", 255 }
+  defp clean_histogram_entry( { k, "" } ), do: { k, 0 }
+  defp clean_histogram_entry( { k, v } ), do: { k, (v |> String.to_integer) }
+
   defp extract_histogram_data(entry) do
-    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)\)\s+(?<hex>\#[abcdef\d]{6})\s+/
-    |> Regex.named_captures(entry |> String.downcase)
-    |> histogram_integerify
+    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)(,(?<alpha>[\d\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
+    |> Regex.named_captures(entry)
+    |> Enum.map( fn {k,v} -> { k, v |> Compat.string_trim } end )
+    |> cleanse_histogram
   end
 
   defp process_histogram_output(histogram_output) do
