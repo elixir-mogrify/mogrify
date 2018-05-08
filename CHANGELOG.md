@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1 (2018-05-08)
+
+* Fix `histogram/1` for RGBA images
+
 ## 0.6.0 (2018-04-17)
 
 * Breaking changes
