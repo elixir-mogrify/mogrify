@@ -254,10 +254,10 @@ defmodule MogrifyTest do
   test ".histogram with no transparency" do
     hist = open(@fixture_rgbw) |> histogram |> Enum.sort_by( fn %{"hex" => hex} -> hex end )
     expected = [
-      %{"alpha" => 0, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000FF", "red" => 0},
-      %{"alpha" => 0, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00FF00", "red" => 0},
-      %{"alpha" => 0, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#FF0000", "red" => 255},
-      %{"alpha" => 0, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#FFFFFF", "red" => 255}
+      %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000FF", "red" => 0},
+      %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00FF00", "red" => 0},
+      %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#FF0000", "red" => 255},
+      %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#FFFFFF", "red" => 255}
     ]
     assert hist == expected
   end
