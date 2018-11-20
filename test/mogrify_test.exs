@@ -161,6 +161,16 @@ defmodule MogrifyTest do
     assert File.exists?(path) == false
   end
 
+  test "binary output" do
+    binary_image =
+      %Image{}
+      |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
+      |> custom("stdout", "png:-")
+      |> create(buffer: true)
+
+    assert is_binary(binary_image)
+  end
+
   test ".copy" do
     image = open(@fixture) |> copy
     tmp_dir = System.tmp_dir |> Regex.escape
