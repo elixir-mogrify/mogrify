@@ -21,7 +21,13 @@ defmodule Mogrify do
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
   """
-  def save(image, opts \\ []) do
+  def save(image, opts \\ [])
+  def save(image, [buffer: true]) do
+    System.cmd "mogrify", arguments(image), stderr_to_stdout: true
+    image_after_command(image)
+  end
+
+  def save(image, opts) do
     output_path = output_path_for(image, opts)
     System.cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
     image_after_command(image, output_path)
@@ -38,7 +44,13 @@ defmodule Mogrify do
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
   """
-  def create(image, opts \\ []) do
+  def create(image, opts \\ [])
+  def create(image, [buffer: true]) do
+    {binary_image, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true)
+    binary_image
+  end
+
+  def create(image, opts) do
     output_path = output_path_for(image, opts)
     System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
     image_after_command(image, output_path)
@@ -77,6 +89,12 @@ defmodule Mogrify do
               operations: [],
               dirty: %{}}
   end
+  defp image_after_command(image) do
+    %{image | format: Map.get(image.dirty, :format, image.format),
+      operations: [],
+      dirty: %{}}
+  end
+
 
   defp cleanse_histogram(hist) do
     hist
@@ -128,6 +146,7 @@ defmodule Mogrify do
   defp normalize_arguments({"annotate", params}),      do: ~w(-annotate #{params})
   defp normalize_arguments({"histogram:" <> option, nil}),      do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}),      do: ["pango:#{params}"]
+  defp normalize_arguments({"stdout", params}),      do: ["#{params}"]
   defp normalize_arguments({"+" <> option, nil}),      do: ["+#{option}"]
   defp normalize_arguments({"-" <> option, nil}),      do: ["-#{option}"]
   defp normalize_arguments({option, nil}),             do: ["-#{option}"]
