@@ -21,14 +21,7 @@ defmodule Mogrify do
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
   """
-  def save(image, opts \\ [])
-
-  def save(image, buffer: true) do
-    System.cmd("mogrify", arguments(image), stderr_to_stdout: true)
-    image_after_command(image)
-  end
-
-  def save(image, opts) do
+  def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
     System.cmd("mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true)
     image_after_command(image, output_path)
@@ -94,10 +87,6 @@ defmodule Mogrify do
         operations: [],
         dirty: %{}
     }
-  end
-
-  defp image_after_command(image) do
-    %{image | format: Map.get(image.dirty, :format, image.format), operations: [], dirty: %{}}
   end
 
   defp cleanse_histogram(hist) do
