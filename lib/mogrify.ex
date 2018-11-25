@@ -45,6 +45,11 @@ defmodule Mogrify do
     binary_image
   end
 
+  def create(image, buffer: true, into: into) do
+    {image_collectable, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true, into: into)
+    image_collectable
+  end
+
   def create(image, opts) do
     output_path = output_path_for(image, opts)
     System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
