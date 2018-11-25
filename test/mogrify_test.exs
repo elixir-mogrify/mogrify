@@ -165,14 +165,29 @@ defmodule MogrifyTest do
   end
 
   test "binary output" do
-    binary_image =
+    binary =
       %Image{}
       |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
       |> custom("stdout", "png:-")
       |> create(buffer: true)
 
-    assert is_binary(binary_image)
+    assert is_binary(binary)
   end
+
+  test "binary output using into: IO.stream/2" do
+    stdout = capture_io(fn ->
+      image_collectable =
+        %Image{}
+        |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
+        |> custom("stdout", "png:-")
+        |> create(buffer: true, into: IO.binstream(:stdio, :line))
+
+      assert %IO.Stream{} = image_collectable
+    end)
+
+    assert is_binary(stdout)
+  end
+
 
   test ".copy" do
     image = open(@fixture) |> copy
