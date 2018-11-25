@@ -1,9 +1,12 @@
 defmodule MogrifyTest do
-  import Mogrify
-  alias Mogrify.Image
   use Mogrify.Options
-
   use ExUnit.Case, async: true
+
+  import Mogrify
+  import ExUnit.CaptureIO, only: [capture_io: 1]
+
+  alias Mogrify.Image
+
 
   @fixture Path.join(__DIR__, "fixtures/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "fixtures/image with space in name/ben der.jpg")
