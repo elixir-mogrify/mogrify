@@ -40,22 +40,18 @@ defmodule Mogrify do
   * `:buffer` - Pass `true` to write to Collectable in Image.buffer instead of file.
   * `:into` - Used with `:buffer` to specify a Collectable. Defaults to "". See System.cmd/3.
   """
-  def create(image, opts \\ [])
+  def create(image, opts \\ []) do
+    cmd_opts = [stderr_to_stdout: true]
 
-  def create(image, buffer: true) do
-    {binary_image, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true)
-    image_after_buffer_command(image, binary_image)
-  end
-
-  def create(image, buffer: true, into: into) do
-    {image_collectable, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true, into: into)
-    image_after_buffer_command(image, image_collectable)
-  end
-
-  def create(image, opts) do
-    output_path = output_path_for(image, opts)
-    System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
-    image_after_command(image, output_path)
+    if opts[:buffer] do
+      cmd_opts = if opts[:into], do: cmd_opts ++ [into: opts[:into]], else: cmd_opts
+      {image_collectable, 0} = System.cmd("convert", arguments(image), cmd_opts)
+      image_after_buffer_command(image, image_collectable)
+    else
+      output_path = output_path_for(image, opts)
+      System.cmd("convert", arguments_for_creating(image, output_path), cmd_opts)
+      image_after_command(image, output_path)
+    end
   end
 
   @doc """
