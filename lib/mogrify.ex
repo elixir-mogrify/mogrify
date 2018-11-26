@@ -140,7 +140,8 @@ defmodule Mogrify do
   end
 
   defp arguments_for_creating(image, path) do
-    base_arguments = ["#{Path.dirname(path)}/#{Path.basename(image.path)}"]
+    basename = if image.path, do: Path.basename(image.path), else: Path.basename(path)
+    base_arguments = ["#{Path.dirname(path)}/#{basename}"]
     arguments(image) ++ base_arguments
   end
 
@@ -178,7 +179,7 @@ defmodule Mogrify do
   end
 
   defp do_temporary_path_for(path) do
-    name = Path.basename(path)
+    name = if path, do: Path.basename(path), else: Compat.rand_uniform(999_999)
     random = Compat.rand_uniform(999_999)
     Path.join(System.tmp_dir(), "#{random}-#{name}")
   end
