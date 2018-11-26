@@ -37,6 +37,8 @@ defmodule Mogrify do
 
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  * `:buffer` - Pass `true` to write to Collectable in Image.buffer instead of file.
+  * `:into` - Used with `:buffer` to specify a Collectable. Defaults to "". See System.cmd/3.
   """
   def create(image, opts \\ [])
 
