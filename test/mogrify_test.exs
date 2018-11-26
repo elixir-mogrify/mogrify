@@ -214,6 +214,20 @@ defmodule MogrifyTest do
     assert is_binary(stdout)
   end
 
+  test "binary output buffer matches file output" do
+    path = Path.join(System.tmp_dir(), "1.png")
+    image =
+      %Image{path: path}
+      |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
+
+    result1 = image |> custom("stdout", "png:-") |> create(buffer: true)
+    result2 = image |> create(path: path)
+
+    buf1 = result1.buffer
+    {:ok, buf2} = File.read(result2.path)
+    assert buf1 == buf2
+  end
+
   test ".copy" do
     image = open(@fixture) |> copy
     tmp_dir = System.tmp_dir() |> Regex.escape()
