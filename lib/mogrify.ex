@@ -44,12 +44,12 @@ defmodule Mogrify do
 
   def create(image, buffer: true) do
     {binary_image, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true)
-    binary_image
+    image_after_buffer_command(image, binary_image)
   end
 
   def create(image, buffer: true, into: into) do
     {image_collectable, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true, into: into)
-    image_collectable
+    image_after_buffer_command(image, image_collectable)
   end
 
   def create(image, opts) do
@@ -86,14 +86,24 @@ defmodule Mogrify do
   end
 
   defp image_after_command(image, output_path) do
+    format = Map.get(image.dirty, :format, image.format)
     %{
-      image
+      clear_operations(image)
       | path: output_path,
         ext: Path.extname(output_path),
-        format: Map.get(image.dirty, :format, image.format),
-        operations: [],
-        dirty: %{}
+        format: format
     }
+  end
+
+  defp image_after_buffer_command(image, image_collectable) do
+    %{
+      clear_operations(image)
+      | buffer: image_collectable
+    }
+  end
+
+  defp clear_operations(image) do
+    %{image | operations: [], dirty: %{}}
   end
 
   defp cleanse_histogram(hist) do

@@ -7,6 +7,7 @@ defmodule Mogrify.Image do
   @type height      :: integer
   @type animated    :: boolean
   @type frame_count :: integer
+  @type buffer      :: Collectable.t
   @type operations  :: Keyword.t
   @type dirty       :: %{atom => any}
 
@@ -18,6 +19,7 @@ defmodule Mogrify.Image do
     height:      height,
     animated:    animated,
     frame_count: frame_count,
+    buffer:      buffer,
     operations:  operations,
     dirty:       dirty
   }
@@ -29,6 +31,7 @@ defmodule Mogrify.Image do
             height:      nil,
             animated:    false,
             frame_count: 1,
+            buffer:      nil,
             operations:  [],
             dirty:       %{}
 end
