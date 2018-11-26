@@ -37,23 +37,21 @@ defmodule Mogrify do
 
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  * `:buffer` - Pass `true` to write to Collectable in Image.buffer instead of file.
+  * `:into` - Used with `:buffer` to specify a Collectable. Defaults to "". See System.cmd/3.
   """
-  def create(image, opts \\ [])
+  def create(image, opts \\ []) do
+    cmd_opts = [stderr_to_stdout: true]
 
-  def create(image, buffer: true) do
-    {binary_image, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true)
-    binary_image
-  end
-
-  def create(image, buffer: true, into: into) do
-    {image_collectable, 0} = System.cmd("convert", arguments(image), stderr_to_stdout: true, into: into)
-    image_collectable
-  end
-
-  def create(image, opts) do
-    output_path = output_path_for(image, opts)
-    System.cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
-    image_after_command(image, output_path)
+    if opts[:buffer] do
+      cmd_opts = if opts[:into], do: cmd_opts ++ [into: opts[:into]], else: cmd_opts
+      {image_collectable, 0} = System.cmd("convert", arguments(image), cmd_opts)
+      image_after_buffer_command(image, image_collectable)
+    else
+      output_path = output_path_for(image, opts)
+      System.cmd("convert", arguments_for_creating(image, output_path), cmd_opts)
+      image_after_command(image, output_path)
+    end
   end
 
   @doc """
@@ -84,14 +82,24 @@ defmodule Mogrify do
   end
 
   defp image_after_command(image, output_path) do
+    format = Map.get(image.dirty, :format, image.format)
     %{
-      image
+      clear_operations(image)
       | path: output_path,
         ext: Path.extname(output_path),
-        format: Map.get(image.dirty, :format, image.format),
-        operations: [],
-        dirty: %{}
+        format: format
     }
+  end
+
+  defp image_after_buffer_command(image, image_collectable) do
+    %{
+      clear_operations(image)
+      | buffer: image_collectable
+    }
+  end
+
+  defp clear_operations(image) do
+    %{image | operations: [], dirty: %{}}
   end
 
   defp cleanse_histogram(hist) do
@@ -132,7 +140,8 @@ defmodule Mogrify do
   end
 
   defp arguments_for_creating(image, path) do
-    base_arguments = ["#{Path.dirname(path)}/#{Path.basename(image.path)}"]
+    basename = if image.path, do: Path.basename(image.path), else: Path.basename(path)
+    base_arguments = ["#{Path.dirname(path)}/#{basename}"]
     arguments(image) ++ base_arguments
   end
 
@@ -170,7 +179,7 @@ defmodule Mogrify do
   end
 
   defp do_temporary_path_for(path) do
-    name = Path.basename(path)
+    name = if path, do: Path.basename(path), else: Compat.rand_uniform(999_999)
     random = Compat.rand_uniform(999_999)
     Path.join(System.tmp_dir(), "#{random}-#{name}")
   end

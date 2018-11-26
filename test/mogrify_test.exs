@@ -115,7 +115,7 @@ defmodule MogrifyTest do
 
   test ".create" do
     path = Path.join(System.tmp_dir(), "1.jpg")
-    image = %Image{path: path} |> canvas("white") |> create(path: path)
+    image = %Image{} |> canvas("white") |> create(path: path)
 
     assert File.exists?(path) == true
     assert %Image{path: ^path} = image
@@ -127,7 +127,7 @@ defmodule MogrifyTest do
     File.mkdir_p!(@temp_test_directory)
 
     image =
-      %Image{path: @temp_image_with_space}
+      %Image{}
       |> canvas("white")
       |> create(path: @temp_image_with_space)
 
@@ -141,7 +141,7 @@ defmodule MogrifyTest do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
     image =
-      %Image{path: path}
+      %Image{}
       |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
       |> create(path: path)
 
@@ -155,7 +155,7 @@ defmodule MogrifyTest do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
     image =
-      %Image{path: path}
+      %Image{}
       |> custom("pango", ~S('<span foreground="yellow">hello test</span>'))
       |> create(path: path)
 
@@ -169,7 +169,7 @@ defmodule MogrifyTest do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
     image =
-      %Image{path: path}
+      %Image{}
       |> custom("pango", ~S(<markup><span foreground="yellow">hello test</span></markup>'))
       |> create(path: path)
 
@@ -182,7 +182,7 @@ defmodule MogrifyTest do
   test "pango with invalid markup" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
-    %Image{path: path}
+    %Image{}
     |> custom("pango", ~S(<span foreground="yellow">hello test))
     |> create(path: path)
 
@@ -190,28 +190,41 @@ defmodule MogrifyTest do
   end
 
   test "binary output" do
-    binary =
+    image =
       %Image{}
       |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
       |> custom("stdout", "png:-")
       |> create(buffer: true)
 
-    assert is_binary(binary)
+    assert is_binary(image.buffer)
   end
 
   test "binary output using into: IO.stream/2" do
     stdout =
       capture_io(fn ->
-        image_collectable =
+        image =
           %Image{}
           |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
           |> custom("stdout", "png:-")
           |> create(buffer: true, into: IO.binstream(:stdio, :line))
 
-        assert %IO.Stream{} = image_collectable
+        assert %IO.Stream{} = image.buffer
       end)
 
     assert is_binary(stdout)
+  end
+
+  test "binary output buffer matches file output" do
+    image =
+      %Image{}
+      |> custom("pango", ~S(<span foreground="yellow">hello test</span>))
+
+    result1 = image |> custom("stdout", "png:-") |> create(buffer: true)
+    result2 = image |> create(path: Path.join(System.tmp_dir(), "1.png"))
+
+    buf1 = result1.buffer
+    {:ok, buf2} = File.read(result2.path)
+    assert buf1 == buf2
   end
 
   test ".copy" do
