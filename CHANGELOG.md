@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 (2018-12-14)
+
+* Enhancements
+  * Added `:buffer` and `:into` options to `create/2` (**not** `save/2`; see [#56](https://github.com/route/mogrify/issues/56)).
+    Allows writing to an in-memory buffer, or other Collectable of your choice, instead of a file.
+  * Added `Image.buffer` field
+
+* Bugfixes
+  * Allow nil `Image.path` with `create/2`, helps when creating images from scratch with Pango
+
 ## 0.6.1 (2018-05-08)
 
 * Fix `histogram/1` for RGBA images
