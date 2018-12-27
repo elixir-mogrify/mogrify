@@ -52,7 +52,7 @@ Converting:
   import Mogrify
 
   image = open("input.jpg") |> format("png") |> save
-  IO.inspect(image) # => %Image{path: "/tmp/568550-input.png", ext: ".png", format: "png", height: 292, width: 300}
+  IO.inspect(image) # => %Image{path: "/tmp/568550-input.png", ext: ".png", format: "png"}
 ```
 
 Getting info:
