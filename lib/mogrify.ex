@@ -23,7 +23,10 @@ defmodule Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
-    System.cmd("mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true)
+    case :os.type() do
+      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "mogrify"] ++ arguments_for_saving(image, output_path), stderr_to_stdout: true)
+      _ -> System.cmd("mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true)
+    end
     image_after_command(image, output_path)
   end
 
@@ -45,11 +48,17 @@ defmodule Mogrify do
 
     if opts[:buffer] do
       cmd_opts = if opts[:into], do: cmd_opts ++ [into: opts[:into]], else: cmd_opts
-      {image_collectable, 0} = System.cmd("convert", arguments(image), cmd_opts)
+      {image_collectable, 0} = case :os.type() do
+        {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ arguments(image), cmd_opts)
+        _ -> System.cmd("convert", arguments(image), cmd_opts)
+      end
       image_after_buffer_command(image, image_collectable)
     else
       output_path = output_path_for(image, opts)
-      System.cmd("convert", arguments_for_creating(image, output_path), cmd_opts)
+      case :os.type() do
+        {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ arguments_for_creating(image, output_path), cmd_opts)
+        _ -> System.cmd("convert", arguments_for_creating(image, output_path), cmd_opts)
+      end
       image_after_command(image, output_path)
     end
   end
@@ -76,7 +85,11 @@ defmodule Mogrify do
     img = image |> custom("format", "%c")
     args = arguments(img) ++ [image.path, "histogram:info:-"]
 
-    System.cmd("convert", args, stderr_to_stdout: false)
+    res = case :os.type() do
+      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ args, stderr_to_stdout: false)
+      _ -> System.cmd("convert", args, stderr_to_stdout: false)
+    end
+    res
     |> elem(0)
     |> process_histogram_output
   end
@@ -189,7 +202,11 @@ defmodule Mogrify do
   """
   def verbose(image) do
     args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
-    {output, 0} = System.cmd("mogrify", args, stderr_to_stdout: true)
+
+    {output, 0} = case :os.type() do
+      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "mogrify"] ++ args, stderr_to_stdout: true)
+      _ -> System.cmd("mogrify", args, stderr_to_stdout: true)
+    end
 
     info =
       ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
