@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.1 (2019-03-12)
+
+* Enhancements
+  * Added `quality/1`
+
+* Bugfixes
+  * Fix commands on Windows
+
 ## 0.7.0 (2018-12-14)
 
 * Enhancements
