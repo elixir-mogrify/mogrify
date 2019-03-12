@@ -3,7 +3,7 @@
 ## 0.7.2 (2019-03-12)
 
 * Enhancements
-  * Added `quality/1`
+  * Added `quality/2`
 
 * Bugfixes
   * Fix commands on Windows
