@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.1 (2019-03-12)
+## 0.7.2 (2019-03-12)
 
 * Enhancements
   * Added `quality/1`
