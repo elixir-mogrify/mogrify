@@ -253,6 +253,13 @@ defmodule Mogrify do
   end
 
   @doc """
+  Changes quality of the image to desired quality
+  """
+  def quality(image, params) do
+    %{image | operations: image.operations ++ [quality: params]}
+  end
+
+  @doc """
   Extends the image to the specified dimensions
   """
   def extent(image, params) do
