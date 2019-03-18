@@ -76,9 +76,8 @@ defmodule Mogrify do
     img = image |> custom("format", "%c")
     args = arguments(img) ++ [image.path, "histogram:info:-"]
 
-    res = cmd_convert(args, stderr_to_stdout: false)
-
-    res
+    args
+    |> cmd_convert(stderr_to_stdout: false)
     |> elem(0)
     |> process_histogram_output
   end
