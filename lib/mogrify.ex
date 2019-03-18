@@ -77,6 +77,7 @@ defmodule Mogrify do
     args = arguments(img) ++ [image.path, "histogram:info:-"]
 
     res = cmd_convert(args, stderr_to_stdout: false)
+
     res
     |> elem(0)
     |> process_histogram_output
@@ -84,6 +85,7 @@ defmodule Mogrify do
 
   defp image_after_command(image, output_path) do
     format = Map.get(image.dirty, :format, image.format)
+
     %{
       clear_operations(image)
       | path: output_path,
@@ -151,6 +153,7 @@ defmodule Mogrify do
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
+  defp normalize_arguments({:limit, [first, second]}), do: ~w(-limit #{first} #{second})
   defp normalize_arguments({"annotate", params}), do: ~w(-annotate #{params})
   defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}), do: ["pango:#{params}"]
@@ -257,6 +260,13 @@ defmodule Mogrify do
   """
   def quality(image, params) do
     %{image | operations: image.operations ++ [quality: params]}
+  end
+
+  @doc """
+  Adds support for limit in the format of array, eg. ["memory", "30Mib"]
+  """
+  def limit(image, params) do
+    %{image | operations: image.operations ++ [limit: params]}
   end
 
   @doc """
