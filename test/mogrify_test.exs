@@ -113,6 +113,17 @@ defmodule MogrifyTest do
     File.rm_rf!(@temp_test_directory)
   end
 
+  test "save should create directory if it doesn't exist" do
+    path_to_delete = Path.join(System.tmp_dir(), "/folder-doesnt-exist1/")
+    path = path_to_delete <> "/folder-doesnt-exist2/folder-doesnt-exist3/1.jpg"
+
+    image = open(@fixture) |> save(path: path)
+
+    assert File.regular?(path)
+    assert %Image{path: ^path} = image
+    File.rm_rf!(path_to_delete)
+  end
+
   test ".create" do
     path = Path.join(System.tmp_dir(), "1.jpg")
     image = %Image{} |> canvas("white") |> create(path: path)
@@ -137,6 +148,7 @@ defmodule MogrifyTest do
     File.rm_rf!(@temp_test_directory)
   end
 
+  @tag :pango
   test "pango success" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
@@ -151,6 +163,7 @@ defmodule MogrifyTest do
     File.rm!(path)
   end
 
+  @tag :pango
   test "pango by using single quotes" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
@@ -165,6 +178,7 @@ defmodule MogrifyTest do
     File.rm!(path)
   end
 
+  @tag :pango
   test "pango by wrapping in <markup /> tags" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
@@ -179,6 +193,7 @@ defmodule MogrifyTest do
     File.rm!(path)
   end
 
+  @tag :pango
   test "pango with invalid markup" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
@@ -189,6 +204,7 @@ defmodule MogrifyTest do
     assert File.exists?(path) == false
   end
 
+  @tag :pango
   test "binary output" do
     image =
       %Image{}
@@ -199,6 +215,7 @@ defmodule MogrifyTest do
     assert is_binary(image.buffer)
   end
 
+  @tag :pango
   test "binary output using into: IO.stream/2" do
     stdout =
       capture_io(fn ->
@@ -214,6 +231,7 @@ defmodule MogrifyTest do
     assert is_binary(stdout)
   end
 
+  @tag :pango
   test "binary output buffer matches file output" do
     image =
       %Image{}

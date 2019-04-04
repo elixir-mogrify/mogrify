@@ -23,6 +23,8 @@ defmodule Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
+    create_folder_if_doesnt_exist!(output_path)
+
     cmd_mogrify(arguments_for_saving(image, output_path), stderr_to_stdout: true)
     image_after_command(image, output_path)
   end
@@ -77,6 +79,7 @@ defmodule Mogrify do
     args = arguments(img) ++ [image.path, "histogram:info:-"]
 
     res = cmd_convert(args, stderr_to_stdout: false)
+
     res
     |> elem(0)
     |> process_histogram_output
@@ -84,6 +87,7 @@ defmodule Mogrify do
 
   defp image_after_command(image, output_path) do
     format = Map.get(image.dirty, :format, image.format)
+
     %{
       clear_operations(image)
       | path: output_path,
@@ -375,5 +379,9 @@ defmodule Mogrify do
       {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ args, opts)
       _ -> System.cmd("convert", args, opts)
     end
+  end
+
+  defp create_folder_if_doesnt_exist!(path) do
+    path |> Path.dirname() |> File.mkdir_p!()
   end
 end

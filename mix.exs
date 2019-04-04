@@ -6,10 +6,11 @@ defmodule Mogrify.Mixfile do
       app: :mogrify,
       version: "0.7.2",
       elixir: ">= 1.2.0",
+      elixirc_paths: elixirc_paths(Mix.env()),
       description: description(),
       package: package(),
       deps: deps()
-     ]
+    ]
   end
 
   def application do
@@ -32,4 +33,7 @@ defmodule Mogrify.Mixfile do
       links: %{"GitHub" => "https://github.com/route/mogrify"}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
