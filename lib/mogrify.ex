@@ -51,6 +51,8 @@ defmodule Mogrify do
       image_after_buffer_command(image, image_collectable)
     else
       output_path = output_path_for(image, opts)
+      create_folder_if_doesnt_exist!(output_path)
+
       cmd_convert(arguments_for_creating(image, output_path), cmd_opts)
       image_after_command(image, output_path)
     end

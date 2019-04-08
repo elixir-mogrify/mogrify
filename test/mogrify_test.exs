@@ -148,6 +148,17 @@ defmodule MogrifyTest do
     File.rm_rf!(@temp_test_directory)
   end
 
+  test "create should create directory if it doesn't exist" do
+    path_to_delete = Path.join(System.tmp_dir(), "/folder-doesnt-exist1-b/")
+    path = path_to_delete <> "/folder-doesnt-exist2/folder-doesnt-exist3/1.jpg"
+
+    image = %Image{} |> canvas("white") |> create(path: path)
+
+    assert File.regular?(path)
+    assert %Image{path: ^path} = image
+    File.rm_rf!(path_to_delete)
+  end
+
   @tag :pango
   test "pango success" do
     path = Path.join(System.tmp_dir(), "1.jpg")
