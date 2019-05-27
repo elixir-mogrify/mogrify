@@ -310,6 +310,23 @@ defmodule MogrifyTest do
     assert %Image{ext: ".png", format: "png"} = image
   end
 
+  test ".format when output path has no extension" do
+    orig = open(@fixture) |> verbose
+    assert "jpeg" == orig.format
+
+    path = Path.join(System.tmp_dir(), "mogrify_test_no_ext")
+
+    orig
+    |> format("png")
+    |> save(path: path)
+
+    image =
+      open(path)
+      |> verbose
+
+    assert "png" == image.format
+  end
+
   test ".resize" do
     image = open(@fixture) |> resize("100x100") |> save |> verbose
     assert %Image{width: 100, height: 97} = image
