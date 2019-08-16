@@ -157,10 +157,8 @@ defmodule Mogrify do
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
-
   defp normalize_arguments({"annotate", params}),
     do: ["-annotate"] ++ String.split(params, " ", parts: 2)
-
   defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}), do: ["pango:#{params}"]
   defp normalize_arguments({"stdout", params}), do: ["#{params}"]

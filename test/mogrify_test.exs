@@ -346,6 +346,28 @@ defmodule MogrifyTest do
     assert size_implicit == size_explicit
   end
 
+  test ".custom annotate with multiple words" do
+    path1 = Path.join(System.tmp_dir(), "1annotate.jpg")
+    path2 = Path.join(System.tmp_dir(), "2annotate.jpg")
+
+    image1 =
+      open(@fixture)
+      |> custom("annotate", "90 testing")
+      |> save(path: path1)
+
+    image2 =
+      open(@fixture)
+      |> custom("annotate", "90 testing multiple words")
+      |> save(path: path2)
+
+    %{size: size1} = File.stat!(image1.path)
+    %{size: size2} = File.stat!(image2.path)
+    assert size1 != size2
+
+    File.rm!(path1)
+    File.rm!(path2)
+  end
+
   test ".histogram with no transparency" do
     hist = open(@fixture_rgbw) |> histogram |> Enum.sort_by(fn %{"hex" => hex} -> hex end)
 
