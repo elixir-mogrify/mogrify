@@ -1,7 +1,10 @@
 import Mogrify.Detect
 
-if has_imagemagick?() && has_pango?() do
-  ExUnit.start()
-else
-  ExUnit.start(exclude: [:pango])
-end
+excluded =
+  if has_imagemagick?() && has_pango?() do
+    [:skip]
+  else
+    [:skip, :pango]
+  end
+
+ExUnit.start(exclude: excluded)

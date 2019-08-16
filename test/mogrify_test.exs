@@ -346,6 +346,7 @@ defmodule MogrifyTest do
     assert size_implicit == size_explicit
   end
 
+  @tag :skip  # broken on ImageMagick 6.8.9.9
   test ".custom annotate with multiple words" do
     path1 = Path.join(System.tmp_dir(), "1annotate.jpg")
     path2 = Path.join(System.tmp_dir(), "2annotate.jpg")
