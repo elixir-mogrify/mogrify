@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.3 (2019-08-19)
+
+* Bugfixes
+  * Create intermediate missing directories instead of silently failing `save/2` and `create/2`
+  * Fix for `custom(image, "annotate", ...)` with multi-word text
+  * Skip Pango unit tests if Pango not installed
+
 ## 0.7.2 (2019-03-12)
 
 * Enhancements
