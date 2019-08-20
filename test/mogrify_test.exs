@@ -1,6 +1,6 @@
 defmodule MogrifyTest do
   use Mogrify.Options
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Mogrify
   import ExUnit.CaptureIO, only: [capture_io: 1]
