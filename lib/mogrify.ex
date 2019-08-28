@@ -1,7 +1,10 @@
 defmodule Mogrify do
+  use Mogrify.Compat
+  
   alias Mogrify.Compat
   alias Mogrify.Image
   alias Mogrify.Option
+
 
   @doc """
   Opens image source
@@ -157,8 +160,10 @@ defmodule Mogrify do
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
+
   defp normalize_arguments({"annotate", params}),
     do: ["-annotate"] ++ String.split(params, " ", parts: 2)
+
   defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}), do: ["pango:#{params}"]
   defp normalize_arguments({"stdout", params}), do: ["#{params}"]
@@ -375,6 +380,13 @@ defmodule Mogrify do
       {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "mogrify"] ++ args, opts)
       _ -> System.cmd("mogrify", args, opts)
     end
+  rescue
+    e in [ErlangError] ->
+      if e.original == :enoent do
+        raise "missing prerequisite: 'mogrify'"
+      else
+        reraise e, __STACKTRACE__
+      end
   end
 
   defp cmd_convert(args, opts) do
@@ -382,6 +394,13 @@ defmodule Mogrify do
       {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ args, opts)
       _ -> System.cmd("convert", args, opts)
     end
+  rescue
+    e in [ErlangError] ->
+      if e.original == :enoent do
+        raise "missing prerequisite: 'convert'"
+      else
+        reraise e, __STACKTRACE__
+      end
   end
 
   defp create_folder_if_doesnt_exist!(path) do
