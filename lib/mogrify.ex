@@ -1,7 +1,10 @@
 defmodule Mogrify do
+  use Mogrify.Compat
+  
   alias Mogrify.Compat
   alias Mogrify.Image
   alias Mogrify.Option
+
 
   @doc """
   Opens image source
