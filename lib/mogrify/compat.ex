@@ -3,10 +3,9 @@ defmodule Mogrify.Compat do
 
   defmacro __using__(_opts) do
     quote do
-      if not macro_exported? Kernel.SpecialForms, :__STACKTRACE__, 0 do
+      Code.ensure_loaded(Kernel.SpecialForms)
+      if not macro_exported?(Kernel.SpecialForms, :__STACKTRACE__, 0) do
         def __STACKTRACE__, do: System.stacktrace()
-      else
-        nil
       end
     end
   end
