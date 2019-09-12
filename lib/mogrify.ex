@@ -292,7 +292,7 @@ defmodule Mogrify do
   in the smaller dimension but will not be larger than the specified values.
   """
   def resize_to_limit(image, params) do
-    resize(image, "#{params}>")
+    resize(image, "#{params}")
   end
 
   @doc """
