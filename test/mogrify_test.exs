@@ -12,6 +12,7 @@ defmodule MogrifyTest do
   @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
   @fixture_rgbw Path.join(__DIR__, "fixtures/rgbw.png")
   @fixture_rgbwa Path.join(__DIR__, "fixtures/rgbwa.png")
+  @temp_directory "#{System.tmp_dir()}/mogrify" |> Path.expand()
   @temp_test_directory "#{System.tmp_dir()}/mogrify test folder" |> Path.expand()
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
@@ -60,7 +61,7 @@ defmodule MogrifyTest do
 
   test ".save in place" do
     # setup, make a copy
-    path = Path.join(System.tmp_dir(), "1.jpg")
+    path = Path.join(@temp_directory, "1.jpg")
     open(@fixture) |> save(path: path)
 
     # test begins
@@ -84,7 +85,7 @@ defmodule MogrifyTest do
 
   test ".save :in_place ignores :path option" do
     # setup, make a copy
-    path = Path.join(System.tmp_dir(), "1.jpg")
+    path = Path.join(@temp_directory, "1.jpg")
     open(@fixture) |> save(path: path)
 
     # test begins
