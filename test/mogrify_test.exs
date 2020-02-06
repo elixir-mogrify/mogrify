@@ -189,6 +189,26 @@ defmodule MogrifyTest do
     assert buf1 == buf2
   end
 
+  @tag :plasma
+  test "plasma seed is used" do
+    image_seed10 =
+      %Image{}
+      |> custom("seed", 10)
+      |> custom("plasma", "fractal")
+
+    image_seed20 =
+      %Image{}
+      |> custom("seed", 20)
+      |> custom("plasma", "fractal")
+
+    result_seed10_1 = image_seed10 |> custom("stdout", "png:-") |> create(buffer: true)
+    result_seed10_2 = image_seed10 |> custom("stdout", "png:-") |> create(buffer: true)
+    result_seed20 = image_seed20 |> custom("stdout", "png:-") |> create(buffer: true)
+
+    assert result_seed10_1.buffer == result_seed10_2.buffer
+    assert result_seed10_1.buffer != result_seed20.buffer
+  end
+
   @tag :pango
   test "pango success" do
     path = Path.join(System.tmp_dir(), "1.jpg")
