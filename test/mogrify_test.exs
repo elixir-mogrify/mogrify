@@ -160,6 +160,36 @@ defmodule MogrifyTest do
     File.rm_rf!(path_to_delete)
   end
 
+  @tag :plasma
+  test "plasma success" do
+    path = Path.join(System.tmp_dir(), "1.jpg")
+
+    image =
+      %Image{}
+      |> custom("plasma", "fractal")
+      |> create(path: path)
+
+    assert File.exists?(path) == true
+    assert %Image{path: ^path} = image
+
+    File.rm!(path)
+  end
+
+  @tag :plasma
+  test "plasma binary output buffer matches file output" do
+    image =
+      %Image{}
+      |> custom("seed", 10)
+      |> custom("plasma", "fractal")
+
+    result1 = image |> custom("stdout", "png:-") |> create(buffer: true)
+    result2 = image |> create(path: Path.join(System.tmp_dir(), "1.png"))
+
+    buf1 = result1.buffer
+    {:ok, buf2} = File.read(result2.path)
+    assert buf1 == buf2
+  end
+
   @tag :pango
   test "pango success" do
     path = Path.join(System.tmp_dir(), "1.jpg")
