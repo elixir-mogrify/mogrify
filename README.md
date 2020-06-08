@@ -79,8 +79,18 @@ Using custom commands to create an image with markup:
   |> create(path: ".")
 ```
 
-Creating new images: See [mogrify_draw](https://github.com/zamith/mogrify_draw) for an example of generating a new image from scratch.
+Plasma backgrounds:
 
+```elixir
+  import Mogrify
+
+  %Mogrify.Image{path: "test.png", ext: "png"}
+  |> custom("size", "280x280")
+  |> custom("seed", 10)
+  |> custom("plasma", "fractal")
+```
+
+Creating new images: See [mogrify_draw](https://github.com/zamith/mogrify_draw) for an example of generating a new image from scratch.
 
 ## Changelog
 
