@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.4 (2020-06-08)
+
+* Enhancements
+  * Added support for Plasma via `custom(image, "plasma", ...)` combined with `create/2`. See README for an example.
+
 ## 0.7.3 (2019-08-19)
 
 * Bugfixes
