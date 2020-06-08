@@ -1,6 +1,6 @@
 defmodule Mogrify do
   use Mogrify.Compat
-  
+
   alias Mogrify.Compat
   alias Mogrify.Image
   alias Mogrify.Option
@@ -167,6 +167,8 @@ defmodule Mogrify do
   defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}), do: ["pango:#{params}"]
   defp normalize_arguments({"stdout", params}), do: ["#{params}"]
+  defp normalize_arguments({"plasma", params}), do: ["plasma:#{params}"]
+  defp normalize_arguments({"canvas", params}), do: ["canvas:#{params}"]
   defp normalize_arguments({"+" <> option, nil}), do: ["+#{option}"]
   defp normalize_arguments({"-" <> option, nil}), do: ["-#{option}"]
   defp normalize_arguments({option, nil}), do: ["-#{option}"]
