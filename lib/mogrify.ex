@@ -5,7 +5,6 @@ defmodule Mogrify do
   alias Mogrify.Image
   alias Mogrify.Option
 
-
   @doc """
   Opens image source
   """
@@ -28,7 +27,7 @@ defmodule Mogrify do
     output_path = output_path_for(image, opts)
     create_folder_if_doesnt_exist!(output_path)
 
-    cmd_mogrify(arguments_for_saving(image, output_path), stderr_to_stdout: true)
+    {_, 0} = cmd_mogrify(arguments_for_saving(image, output_path), stderr_to_stdout: true)
     image_after_command(image, output_path)
   end
 
@@ -56,7 +55,7 @@ defmodule Mogrify do
       output_path = output_path_for(image, opts)
       create_folder_if_doesnt_exist!(output_path)
 
-      cmd_convert(arguments_for_creating(image, output_path), cmd_opts)
+      {_, 0} = cmd_convert(arguments_for_creating(image, output_path), cmd_opts)
       image_after_command(image, output_path)
     end
   end
