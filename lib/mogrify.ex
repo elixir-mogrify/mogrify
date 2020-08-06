@@ -378,10 +378,8 @@ defmodule Mogrify do
   end
 
   defp cmd_mogrify(args, opts) do
-    case :os.type() do
-      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "mogrify"] ++ args, opts)
-      _ -> System.cmd("mogrify", args, opts)
-    end
+    {command, additional_args} = command_options(:mogrify)
+    System.cmd(command, additional_args ++ args, opts)
   rescue
     e in [ErlangError] ->
       if e.original == :enoent do
@@ -392,10 +390,8 @@ defmodule Mogrify do
   end
 
   defp cmd_convert(args, opts) do
-    case :os.type() do
-      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ args, opts)
-      _ -> System.cmd("convert", args, opts)
-    end
+    {command, additional_args} = command_options(:convert)
+    System.cmd(command, additional_args ++ args, opts)
   rescue
     e in [ErlangError] ->
       if e.original == :enoent do
@@ -407,5 +403,23 @@ defmodule Mogrify do
 
   defp create_folder_if_doesnt_exist!(path) do
     path |> Path.dirname() |> File.mkdir_p!()
+  end
+
+  defp command_options(command) do
+    config = Application.get_env(:mogrify, :"#{command}_command", [])
+    path = Keyword.get(config, :path)
+    args = Keyword.get(config, :args, [])
+    if path do
+      {path, args}
+    else
+      default_command(command)
+    end
+  end
+
+  defp default_command(command) do
+    case :os.type() do
+      {:win32, _} -> {"cmd.exe", ["/c", "magick", "#{command}"]}
+      _ -> {"#{command}", []}
+    end
   end
 end
