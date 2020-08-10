@@ -18,6 +18,29 @@ Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
   {:mogrify, "~> 0.7.4"}
 ```
 
+## Configuration
+
+Configure the ImageMagick:
+
+configure `mogrify` command:
+
+```elixir
+  config :mogrify, mogrify_command: [
+    path: "mogrify",
+    args: []
+  ]
+```
+
+configure `convert` command:
+
+```elixir
+  config :mogrify, convert_command: [
+    path: "mogrify",
+    args: []
+  ]
+```
+
+
 ## Examples
 
 Thumbnailing:
