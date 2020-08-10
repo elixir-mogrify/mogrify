@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.5 (2020-08-10)
+
+* Enhancements
+  * Added configuration options for `mogrify` and `convert` executable paths. See README.
+
 ## 0.7.4 (2020-06-08)
 
 * Enhancements
