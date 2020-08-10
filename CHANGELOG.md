@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.7.5 (2020-08-10)
+## 0.8.0 (2020-08-10)
+
+* Breaking changes
+  * `create/2` and `save/2` will throw an error if the ImageMagick command fails
 
 * Enhancements
   * Added configuration options for `mogrify` and `convert` executable paths. See README.

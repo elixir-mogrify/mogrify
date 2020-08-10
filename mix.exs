@@ -4,7 +4,7 @@ defmodule Mogrify.Mixfile do
   def project do
     [
       app: :mogrify,
-      version: "0.7.5",
+      version: "0.8.0",
       elixir: ">= 1.2.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       description: description(),
