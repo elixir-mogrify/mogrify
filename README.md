@@ -20,9 +20,9 @@ Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ## Configuration
 
-Configure the ImageMagick:
+Configure the ImageMagick executable paths (optional):
 
-configure `mogrify` command:
+Configure `mogrify` command:
 
 ```elixir
   config :mogrify, mogrify_command: [
@@ -31,11 +31,11 @@ configure `mogrify` command:
   ]
 ```
 
-configure `convert` command:
+Configure `convert` command:
 
 ```elixir
   config :mogrify, convert_command: [
-    path: "mogrify",
+    path: "convert",
     args: []
   ]
 ```
