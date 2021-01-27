@@ -119,10 +119,10 @@ defmodule Mogrify do
   defp clean_histogram_entry({"hex", v}), do: {"hex", v}
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
-  defp clean_histogram_entry({k, v}), do: {k, v |> String.to_integer()}
+  defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
-  defp extract_histogram_data(entry) do
-    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)(,(?<alpha>[\d\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
+  def extract_histogram_data(entry) do
+    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d(?:\.\d+)?)\s]+),(?<green>[\d(?:\.\d+)?)\s]+),(?<blue>[\d(?:\.\d+)?)\s]+)(,(?<alpha>[\d(?:\.\d+)?)\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
     |> Regex.named_captures(entry)
     |> Enum.map(fn {k, v} -> {k, v |> Compat.string_trim()} end)
     |> cleanse_histogram
