@@ -498,6 +498,23 @@ defmodule MogrifyTest do
       }
     ]
 
+    assert hist ==  expected
+  end
+
+  test ".histogram with fractional rgb values" do
+    hist = open(@fixture) |> custom("-alpha", "remove")
+    |> custom("-colors", 8)
+    |> histogram
+    expected =  [
+      %{"alpha" => 255, "blue" => 34, "count" => 1976, "green" => 33, "hex" => "#202122", "red" => 32},
+      %{"alpha" => 255, "blue" => 64, "count" => 2424, "green" => 63, "hex" => "#3E3F40", "red" => 62},
+      %{"alpha" => 255, "blue" => 103, "count" => 4669, "green" => 101, "hex" => "#656567", "red" => 101},
+      %{"alpha" => 255, "blue" => 127, "count" => 1319, "green" => 128, "hex" => "#7D807F", "red" => 125},
+      %{"alpha" => 255, "blue" => 129, "count" => 4915, "green" => 129, "hex" => "#7F8181", "red" => 127},
+      %{"alpha" => 255, "blue" => 150, "count" => 5913, "green" => 148, "hex" => "#939496", "red" => 147},
+      %{"alpha" => 255, "blue" => 191, "count" => 8142, "green" => 192, "hex" => "#BDC0BF", "red" => 189},
+      %{"alpha" => 255, "blue" => 244, "count" => 58242, "green" => 245, "hex" => "#F4F5F4", "red" => 244}
+    ]
     assert hist == expected
   end
 
