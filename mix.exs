@@ -1,15 +1,18 @@
 defmodule Mogrify.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/route/mogrify"
+  @version "0.8.0"
+
   def project do
     [
       app: :mogrify,
-      version: "0.8.0",
+      version: @version,
       elixir: ">= 1.2.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -18,19 +21,29 @@ defmodule Mogrify.Mixfile do
   end
 
   defp deps do
-    [{:ex_doc, ">= 0.0.0", only: :dev}]
-  end
-
-  defp description do
-    "ImageMagick command line wrapper."
+    [{:ex_doc, ">= 0.0.0", only: :dev, runtime: false}]
   end
 
   defp package do
     [
+      description: "ImageMagick command line wrapper.",
       files: ["lib", "mix.exs", "README*", "CHANGELOG*", "LICENSE*"],
       maintainers: ["Dmitry Vorotilin", "Andrew Shu"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/route/mogrify"}
+      links: %{
+        "Changelog" => "https://hexdocs.pm/mogrify/changelog.html",
+        "GitHub" => @source_url
+      }
+    ]
+  end
+
+  defp docs do
+    [
+      extras: ["CHANGELOG.md", "LICENSE.md", "README.md"],
+      main: "readme",
+      source_url: @source_url,
+      source_ref: "v#{@version}",
+      formatters: ["html"]
     ]
   end
 
