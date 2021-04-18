@@ -6,7 +6,7 @@ defmodule Mogrify do
   alias Mogrify.Option
 
   @doc """
-  Opens image source
+  Opens image source.
   """
   def open(path) do
     path = Path.expand(path)
@@ -16,12 +16,12 @@ defmodule Mogrify do
   end
 
   @doc """
-  Saves modified image
+  Saves modified image.
 
   ## Options
 
   * `:path` - The output path of the image. Defaults to a temporary file.
-  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
@@ -32,7 +32,7 @@ defmodule Mogrify do
   end
 
   @doc """
-  Creates or saves image
+  Creates or saves image.
 
   Uses the `convert` command, which accepts both existing images, or image
   operators. If you have an existing image, prefer save/2.
@@ -40,9 +40,9 @@ defmodule Mogrify do
   ## Options
 
   * `:path` - The output path of the image. Defaults to a temporary file.
-  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   * `:buffer` - Pass `true` to write to Collectable in Image.buffer instead of file.
-  * `:into` - Used with `:buffer` to specify a Collectable. Defaults to "". See System.cmd/3.
+  * `:into` - Used with `:buffer` to specify a Collectable. Defaults to `""`. See `System.cmd/3`.
   """
   def create(image, opts \\ []) do
     cmd_opts = [stderr_to_stdout: true]
@@ -63,19 +63,20 @@ defmodule Mogrify do
   @doc """
   Returns the histogram of the image
 
-  Runs ImageMagick's `histogram:info:-` command
-  Results are returned as a list of maps where each map includes keys red, blue, green, hex and count
+  Runs ImageMagick's `histogram:info:-` command.
 
-  Example:
+  Results are returned as a list of maps where each map includes keys red,
+  blue, green, hex and count.
 
-  iex> open("test/fixtures/rbgw.png") |> histogram
-  [
-    %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
-    %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
-    %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
-    %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
-  ]
+  ## Examples
 
+      iex> open("test/fixtures/rbgw.png") |> histogram
+      [
+        %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
+        %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
+        %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
+        %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
+      ]
 
   """
   def histogram(image) do
@@ -176,7 +177,7 @@ defmodule Mogrify do
   defp normalize_arguments({option, params}), do: ["-#{option}", to_string(params)]
 
   @doc """
-  Makes a copy of original image
+  Makes a copy of original image.
   """
   def copy(image) do
     temp = temporary_path_for(image)
@@ -199,7 +200,7 @@ defmodule Mogrify do
   end
 
   @doc """
-  Provides detailed information about the image
+  Provides detailed information about the image.
   """
   def verbose(image) do
     args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
@@ -243,7 +244,7 @@ defmodule Mogrify do
   end
 
   @doc """
-  Converts the image to the image format you specify
+  Converts the image to the image format you specify.
   """
   def format(image, format) do
     downcase_format = String.downcase(format)
@@ -259,28 +260,28 @@ defmodule Mogrify do
   end
 
   @doc """
-  Resizes the image with provided geometry
+  Resizes the image with provided geometry.
   """
   def resize(image, params) do
     %{image | operations: image.operations ++ [resize: params]}
   end
 
   @doc """
-  Changes quality of the image to desired quality
+  Changes quality of the image to desired quality.
   """
   def quality(image, params) do
     %{image | operations: image.operations ++ [quality: params]}
   end
 
   @doc """
-  Extends the image to the specified dimensions
+  Extends the image to the specified dimensions.
   """
   def extent(image, params) do
     %{image | operations: image.operations ++ [extent: params]}
   end
 
   @doc """
-  Sets the gravity of the image
+  Sets the gravity of the image.
   """
   def gravity(image, params) do
     %{image | operations: image.operations ++ [gravity: params]}
@@ -288,9 +289,11 @@ defmodule Mogrify do
 
   @doc """
   Resize the image to fit within the specified dimensions while retaining
-  the original aspect ratio. Will only resize the image if it is larger than the
-  specified dimensions. The resulting image may be shorter or narrower than specified
-  in the smaller dimension but will not be larger than the specified values.
+  the original aspect ratio.
+
+  Will only resize the image if it is larger than the specified dimensions. The
+  resulting image may be shorter or narrower than specified in the smaller
+  dimension but will not be larger than the specified values.
   """
   def resize_to_limit(image, params) do
     resize(image, "#{params}>")
@@ -298,8 +301,9 @@ defmodule Mogrify do
 
   @doc """
   Resize the image to fit within the specified dimensions while retaining
-  the aspect ratio of the original image. If necessary, crop the image in the
-  larger dimension.
+  the aspect ratio of the original image.
+
+  If necessary, crop the image in the larger dimension.
   """
   def resize_to_fill(image, params) do
     [_, width, height] = Regex.run(~r/(\d+)x(\d+)/, params)
