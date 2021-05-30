@@ -102,6 +102,15 @@ image = open("input.jpg") |> verbose
 IO.inspect(image) # => %Image{path: "input.jpg", ext: ".jpg", format: "jpeg", height: 292, width: 300}
 ```
 
+Getting reduced info in a "lighter" way (uses less memory):
+
+```elixir
+import Mogrify
+
+info = identify("input.jpg")
+IO.inspect(info) # => %{format: "jpeg", height: 292, width: 300}
+```
+
 Using custom commands to create an image with markup:
 
 ```elixir
