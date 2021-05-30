@@ -350,6 +350,10 @@ defmodule MogrifyTest do
     assert %Image{frame_count: 2} = open(@fixture_animated) |> verbose
   end
 
+  test ".identify" do
+    assert %{format: "jpeg", height: 292, width: 300, animated: false} = identify(@fixture)
+  end
+
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: 292, width: 300} = image

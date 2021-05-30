@@ -120,7 +120,9 @@ defmodule Mogrify do
   defp clean_histogram_entry({"hex", v}), do: {"hex", v}
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
-  defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
+
+  defp clean_histogram_entry({k, v}),
+    do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
   def extract_histogram_data(entry) do
     ~r/^\s+(?<count>\d+):\s+\((?<red>[\d(?:\.\d+)?)\s]+),(?<green>[\d(?:\.\d+)?)\s]+),(?<blue>[\d(?:\.\d+)?)\s]+)(,(?<alpha>[\d(?:\.\d+)?)\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
@@ -208,13 +210,28 @@ defmodule Mogrify do
     {output, 0} = cmd_mogrify(args, stderr_to_stdout: true)
 
     info =
-      ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
-      |> Regex.named_captures(output)
-      |> Enum.map(&normalize_verbose_term/1)
-      |> Enum.into(%{})
+      output
+      |> image_information_string_to_map()
       |> put_frame_count(output)
 
     Map.merge(image, info)
+  end
+
+  @doc """
+  Provides "identify" information about an image.
+  """
+  def identify(file_path) do
+    args = [file_path]
+    {output, 0} = cmd_identify(args, stderr_to_stdout: true)
+    image_information_string_to_map(output)
+  end
+
+  @spec image_information_string_to_map(binary()) :: map()
+  def image_information_string_to_map(image_information_string) do
+    ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
+    |> Regex.named_captures(image_information_string)
+    |> Enum.map(&normalize_verbose_term/1)
+    |> Enum.into(%{})
   end
 
   defp dev_null do
@@ -366,9 +383,7 @@ defmodule Mogrify do
 
       raise ArgumentError,
         message:
-          "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{
-            option_name
-          }(arg)"
+          "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
     end
   end
 
@@ -387,6 +402,18 @@ defmodule Mogrify do
     e in [ErlangError] ->
       if e.original == :enoent do
         raise "missing prerequisite: 'mogrify'"
+      else
+        reraise e, __STACKTRACE__
+      end
+  end
+
+  defp cmd_identify(args, opts) do
+    {command, additional_args} = command_options(:identify)
+    System.cmd(command, additional_args ++ args, opts)
+  rescue
+    e in [ErlangError] ->
+      if e.original == :enoent do
+        raise "missing prerequisite: 'identify'"
       else
         reraise e, __STACKTRACE__
       end
@@ -412,6 +439,7 @@ defmodule Mogrify do
     config = Application.get_env(:mogrify, :"#{command}_command", [])
     path = Keyword.get(config, :path)
     args = Keyword.get(config, :args, [])
+
     if path do
       {path, args}
     else

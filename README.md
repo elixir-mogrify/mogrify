@@ -47,6 +47,15 @@ config :mogrify, convert_command: [
 ]
 ```
 
+Configure `identify` command:
+
+```elixir
+config :mogrify, identify_command: [
+  path: "identify",
+  args: []
+]
+```
+
 
 ## Examples
 
