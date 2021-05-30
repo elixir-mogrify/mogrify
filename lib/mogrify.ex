@@ -120,7 +120,6 @@ defmodule Mogrify do
   defp clean_histogram_entry({"hex", v}), do: {"hex", v}
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
-
   defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
   def extract_histogram_data(entry) do
