@@ -24,11 +24,21 @@ defmodule Mogrify do
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   """
   def save(image, opts \\ []) do
-    output_path = output_path_for(image, opts)
-    create_folder_if_doesnt_exist!(output_path)
+    cmd_opts = [stderr_to_stdout: true]
+    if opts[:in_place] do
+      args = arguments_for_saving_in_place(image)
+      {_, 0} = cmd_mogrify(args, cmd_opts)
 
-    {_, 0} = cmd_mogrify(arguments_for_saving(image, output_path), stderr_to_stdout: true)
-    image_after_command(image, output_path)
+      image_after_command(image, image.path)
+    else
+      output_path = output_path_for(image, opts)
+      create_folder_if_doesnt_exist!(output_path)
+
+      args = arguments_for_saving(image, output_path)
+      {_, 0} = cmd_convert(args, cmd_opts)
+
+      image_after_command(image, output_path)
+    end
   end
 
   @doc """
@@ -144,14 +154,19 @@ defmodule Mogrify do
     end
   end
 
+  # used with `convert`
   defp arguments_for_saving(image, path) do
-    base_arguments = ["-write", path, image.path]
-    arguments(image) ++ base_arguments
+    [image.path] ++ arguments(image) ++ [path]
+  end
+
+  # used with `mogrify`
+  defp arguments_for_saving_in_place(image) do
+    arguments(image) ++ [image.path]
   end
 
   defp arguments_for_creating(image, path) do
     basename = if image.path, do: Path.basename(image.path), else: Path.basename(path)
-    base_arguments = ["#{Path.dirname(path)}/#{basename}"]
+    base_arguments = [Path.join(Path.dirname(path), basename)]
     arguments(image) ++ base_arguments
   end
 
@@ -201,18 +216,12 @@ defmodule Mogrify do
 
   @doc """
   Provides detailed information about the image.
+
+  This corresponds to the `mogrify -verbose` output which is similar to `identify`.
+  It does NOT correspond to `identify -verbose` which prints out much more information.
   """
   def verbose(image) do
-    args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
-
-    {output, 0} = cmd_mogrify(args, stderr_to_stdout: true)
-
-    info =
-      output
-      |> image_information_string_to_map()
-      |> put_frame_count(output)
-
-    Map.merge(image, info)
+    Map.merge(image, identify(image.path))
   end
 
   @doc """
@@ -221,7 +230,10 @@ defmodule Mogrify do
   def identify(file_path) do
     args = [file_path]
     {output, 0} = cmd_identify(args, stderr_to_stdout: true)
-    image_information_string_to_map(output)
+
+    output
+    |> image_information_string_to_map()
+    |> put_frame_count(output)
   end
 
   defp image_information_string_to_map(image_information_string) do
@@ -229,13 +241,6 @@ defmodule Mogrify do
     |> Regex.named_captures(image_information_string)
     |> Enum.map(&normalize_verbose_term/1)
     |> Enum.into(%{})
-  end
-
-  defp dev_null do
-    case :os.type() do
-      {:win32, _} -> "NUL"
-      _ -> "/dev/null"
-    end
   end
 
   defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
@@ -247,8 +252,8 @@ defmodule Mogrify do
 
   defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
 
-  defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
-
+  defp put_frame_count(%{animated: false} = map, _),
+    do: Map.put(map, :frame_count, 1)
   defp put_frame_count(map, text) do
     # skip the [0] lines which may be duplicated
     matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
@@ -394,41 +399,23 @@ defmodule Mogrify do
     end
   end
 
-  defp cmd_mogrify(args, opts) do
-    {command, additional_args} = command_options(:mogrify)
+  defp cmd_magick(tool, args, opts) do
+    {command, additional_args} = command_options(tool)
     System.cmd(command, additional_args ++ args, opts)
   rescue
     e in [ErlangError] ->
       if e.original == :enoent do
-        raise "missing prerequisite: 'mogrify'"
+        raise "missing prerequisite: '#{tool}'"
       else
         reraise e, __STACKTRACE__
       end
   end
 
-  defp cmd_identify(args, opts) do
-    {command, additional_args} = command_options(:identify)
-    System.cmd(command, additional_args ++ args, opts)
-  rescue
-    e in [ErlangError] ->
-      if e.original == :enoent do
-        raise "missing prerequisite: 'identify'"
-      else
-        reraise e, __STACKTRACE__
-      end
-  end
+  defp cmd_mogrify(args, opts), do: cmd_magick(:mogrify, args, opts)
 
-  defp cmd_convert(args, opts) do
-    {command, additional_args} = command_options(:convert)
-    System.cmd(command, additional_args ++ args, opts)
-  rescue
-    e in [ErlangError] ->
-      if e.original == :enoent do
-        raise "missing prerequisite: 'convert'"
-      else
-        reraise e, __STACKTRACE__
-      end
-  end
+  defp cmd_identify(args, opts), do: cmd_magick(:identify, args, opts)
+
+  defp cmd_convert(args, opts), do: cmd_magick(:convert, args, opts)
 
   defp create_folder_if_doesnt_exist!(path) do
     path |> Path.dirname() |> File.mkdir_p!()
