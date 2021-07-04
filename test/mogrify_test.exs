@@ -258,9 +258,12 @@ defmodule MogrifyTest do
   test "pango with invalid markup" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
-    %Image{}
-    |> custom("pango", ~S(<span foreground="yellow">hello test))
-    |> create(path: path)
+    # pango command should return nonzero exit status on invalid markup
+    assert_raise MatchError, fn ->
+      %Image{}
+      |> custom("pango", ~S(<span foreground="yellow">hello test))
+      |> create(path: path)
+    end
 
     assert File.exists?(path) == false
   end
