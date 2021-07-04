@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.0 (2021-07-03)
+
+* Breaking changes
+  * `save/2` and `verbose/1` will use `convert` and `identify` executables instead of `mogrify`
+    (except for `in_place: true` passed to `save/2`).
+    This fixes issues related to ImageMagick 6.9.12-14 and 7.0.11-13 behavior changes,
+    where the input file would get overwritten.
+
+* Enhancements
+  * Added `identify/1` which works similarly to `verbose/1`
+
+* Bugfixes
+  * `histogram/1` will parse fractional RGB values
+  * Input file will no longer be overwritten (except for `in_place: true` passed to `save/2`)
+    when using ImageMagick 6.9.12-14 or higher, and ImageMagick 7.0.11-13 or higher
+
 ## 0.8.0 (2020-08-10)
 
 * Breaking changes
