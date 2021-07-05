@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   test_linux:
     runs-on: ${{ matrix.os }}
-    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}} / ${{matrix.os}}
+    name: ${{matrix.os}} / OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -21,5 +21,39 @@ jobs:
           elixir-version: ${{matrix.elixir}}
       - name: Install ImageMagick
         run: sudo apt-get install -y -qq imagemagick
+      - run: mix deps.get
+      - run: mix test
+
+  test_windows:
+    runs-on: windows-2019
+    name: windows-2019 / OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}} / IM ${{matrix.imagemagick}}
+    strategy:
+      matrix:
+        otp: ['24.0']
+        elixir: ['1.11.2']
+        imagemagick: ['7.1.0.2']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache Erlang/OTP package
+        uses: actions/cache@v2
+        with:
+          path: C:\Users\runneradmin\AppData\Local\Temp\chocolatey\erlang
+          key: OTP-${{ matrix.otp }}-windows-2019
+      - name: Cache Elixir package
+        uses: actions/cache@v2
+        with:
+          path: C:\Users\runneradmin\AppData\Local\Temp\chocolatey\Elixir
+          key: Elixir-${{ matrix.elixir }}-windows-2019
+      - name: Install Erlang/OTP
+        run: choco install -y erlang --version ${{ matrix.otp }}
+      - name: Install Elixir
+        run: choco install -y elixir --version ${{ matrix.elixir }}
+      - name: Install ImageMagick
+        run: choco install -y imagemagick.app --version ${{ matrix.imagemagick }}
+      - name: Add Elixir to Path
+        run: echo "C:\ProgramData\chocolatey\lib\Elixir\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Add ImageMagick to Path
+        run: Get-ChildItem "C:\Program Files\" -filter "ImageMagick*" -Directory | % { $_.fullname } | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - run: mix local.hex --force
       - run: mix deps.get
       - run: mix test
