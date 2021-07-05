@@ -25,11 +25,14 @@ defmodule Mogrify do
   """
   def save(image, opts \\ []) do
     cmd_opts = [stderr_to_stdout: true]
+
     if opts[:in_place] do
+      final_output_path = if image.dirty[:path], do: image.dirty[:path], else: image.path
+
       args = arguments_for_saving_in_place(image)
       {_, 0} = cmd_mogrify(args, cmd_opts)
 
-      image_after_command(image, image.path)
+      image_after_command(image, final_output_path)
     else
       cmd_output_path = output_path_for(image, opts)
       final_output_path = Keyword.get(opts, :path, cmd_output_path)
@@ -283,8 +286,8 @@ defmodule Mogrify do
     %{
       image
       | operations: image.operations ++ [format: format],
-        dirty:
-          image.dirty |> Map.put(:path, "#{rootname}#{ext}") |> Map.put(:format, downcase_format)
+        dirty: %{path: "#{rootname}#{ext}", format: downcase_format, ext: ext}
+               |> Enum.into(image.dirty)
     }
   end
 

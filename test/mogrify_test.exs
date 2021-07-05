@@ -367,6 +367,17 @@ defmodule MogrifyTest do
     assert %Image{ext: ".png", format: "png"} = image
   end
 
+  test ".format updates format, ext, and path after save in place" do
+    # setup, make a copy
+    path = Path.join(@temp_directory, "1.jpg")
+    open(@fixture) |> save(path: path)
+
+    image = open(path) |> format("png") |> save(in_place: true)
+
+    expected_path = Path.join(@temp_directory, "1.png")
+    assert %Image{ext: ".png", format: "png", path: ^expected_path} = image
+  end
+
   test ".format when output path has no extension" do
     orig = open(@fixture) |> verbose
     assert "jpeg" == orig.format
