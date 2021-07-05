@@ -1,0 +1,25 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test_linux:
+    runs-on: ${{ matrix.os }}
+    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}} / ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        otp: ['20.0']
+        elixir: ['1.4.5']
+        include:
+          - os: ubuntu-18.04
+            otp: '19.0'
+            elixir: '1.2.6'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - name: Install ImageMagick
+        run: sudo apt-get install -y -qq imagemagick
+      - run: mix deps.get
+      - run: mix test

@@ -1,6 +1,6 @@
 # Mogrify
 
-[![Build Status](https://travis-ci.org/route/mogrify.svg?branch=master)](https://travis-ci.org/route/mogrify)
+[![Build Status](https://github.com/elixir-mogrify/mogrify/actions/workflows/ci.yml/badge.svg)](https://github.com/elixir-mogrify/mogrify/actions?query=workflow%3ACI)
 [![Module Version](https://img.shields.io/hexpm/v/mogrify.svg)](https://hex.pm/packages/mogrify)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/mogrify/)
 [![Total Download](https://img.shields.io/hexpm/dt/mogrify.svg)](https://hex.pm/packages/mogrify)
