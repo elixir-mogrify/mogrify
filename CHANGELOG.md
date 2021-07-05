@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.7.0 (2018-12-14)
 
 * Enhancements
-  * Added `:buffer` and `:into` options to `create/2` (**not** `save/2`; see [#56](https://github.com/route/mogrify/issues/56)).
+  * Added `:buffer` and `:into` options to `create/2` (**not** `save/2`; see [#56](https://github.com/elixir-mogrify/mogrify/issues/56)).
     Allows writing to an in-memory buffer, or other Collectable of your choice, instead of a file.
   * Added `Image.buffer` field
 
