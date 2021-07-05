@@ -434,7 +434,7 @@ defmodule Mogrify do
 
   defp default_command(command) do
     case :os.type() do
-      {:win32, _} -> {"cmd.exe", ["/c", "magick", "#{command}"]}
+      {:win32, _} -> {"magick", ["#{command}"]}
       _ -> {"#{command}", []}
     end
   end
