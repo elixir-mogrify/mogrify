@@ -1,10 +1,12 @@
 defmodule Mogrify do
+  use Mogrify.Compat
+
   alias Mogrify.Compat
   alias Mogrify.Image
   alias Mogrify.Option
 
   @doc """
-  Opens image source
+  Opens image source.
   """
   def open(path) do
     path = Path.expand(path)
@@ -14,23 +16,33 @@ defmodule Mogrify do
   end
 
   @doc """
-  Saves modified image
+  Saves modified image.
 
   ## Options
 
   * `:path` - The output path of the image. Defaults to a temporary file.
-  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   """
   def save(image, opts \\ []) do
-    output_path = output_path_for(image, opts)
-    create_folder_if_doesnt_exist!(output_path)
+    cmd_opts = [stderr_to_stdout: true]
+    if opts[:in_place] do
+      args = arguments_for_saving_in_place(image)
+      {_, 0} = cmd_mogrify(args, cmd_opts)
 
-    cmd_mogrify(arguments_for_saving(image, output_path), stderr_to_stdout: true)
-    image_after_command(image, output_path)
+      image_after_command(image, image.path)
+    else
+      output_path = output_path_for(image, opts)
+      create_folder_if_doesnt_exist!(output_path)
+
+      args = arguments_for_saving(image, output_path)
+      {_, 0} = cmd_convert(args, cmd_opts)
+
+      image_after_command(image, output_path)
+    end
   end
 
   @doc """
-  Creates or saves image
+  Creates or saves image.
 
   Uses the `convert` command, which accepts both existing images, or image
   operators. If you have an existing image, prefer save/2.
@@ -38,9 +50,9 @@ defmodule Mogrify do
   ## Options
 
   * `:path` - The output path of the image. Defaults to a temporary file.
-  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default false.
+  * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   * `:buffer` - Pass `true` to write to Collectable in Image.buffer instead of file.
-  * `:into` - Used with `:buffer` to specify a Collectable. Defaults to "". See System.cmd/3.
+  * `:into` - Used with `:buffer` to specify a Collectable. Defaults to `""`. See `System.cmd/3`.
   """
   def create(image, opts \\ []) do
     cmd_opts = [stderr_to_stdout: true]
@@ -53,7 +65,7 @@ defmodule Mogrify do
       output_path = output_path_for(image, opts)
       create_folder_if_doesnt_exist!(output_path)
 
-      cmd_convert(arguments_for_creating(image, output_path), cmd_opts)
+      {_, 0} = cmd_convert(arguments_for_creating(image, output_path), cmd_opts)
       image_after_command(image, output_path)
     end
   end
@@ -61,19 +73,20 @@ defmodule Mogrify do
   @doc """
   Returns the histogram of the image
 
-  Runs ImageMagick's `histogram:info:-` command
-  Results are returned as a list of maps where each map includes keys red, blue, green, hex and count
+  Runs ImageMagick's `histogram:info:-` command.
 
-  Example:
+  Results are returned as a list of maps where each map includes keys red,
+  blue, green, hex and count.
 
-  iex> open("test/fixtures/rbgw.png") |> histogram
-  [
-    %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
-    %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
-    %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
-    %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
-  ]
+  ## Examples
 
+      iex> open("test/fixtures/rbgw.png") |> histogram
+      [
+        %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
+        %{"alpha" => 255, "blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
+        %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
+        %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
+      ]
 
   """
   def histogram(image) do
@@ -117,10 +130,10 @@ defmodule Mogrify do
   defp clean_histogram_entry({"hex", v}), do: {"hex", v}
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
-  defp clean_histogram_entry({k, v}), do: {k, v |> String.to_integer()}
+  defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
-  defp extract_histogram_data(entry) do
-    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)(,(?<alpha>[\d\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
+  def extract_histogram_data(entry) do
+    ~r/^\s+(?<count>\d+):\s+\((?<red>[\d(?:\.\d+)?)\s]+),(?<green>[\d(?:\.\d+)?)\s]+),(?<blue>[\d(?:\.\d+)?)\s]+)(,(?<alpha>[\d(?:\.\d+)?)\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
     |> Regex.named_captures(entry)
     |> Enum.map(fn {k, v} -> {k, v |> Compat.string_trim()} end)
     |> cleanse_histogram
@@ -141,14 +154,19 @@ defmodule Mogrify do
     end
   end
 
+  # used with `convert`
   defp arguments_for_saving(image, path) do
-    base_arguments = ["-write", path, image.path]
-    arguments(image) ++ base_arguments
+    [image.path] ++ arguments(image) ++ [path]
+  end
+
+  # used with `mogrify`
+  defp arguments_for_saving_in_place(image) do
+    arguments(image) ++ [image.path]
   end
 
   defp arguments_for_creating(image, path) do
     basename = if image.path, do: Path.basename(image.path), else: Path.basename(path)
-    base_arguments = ["#{Path.dirname(path)}/#{basename}"]
+    base_arguments = [Path.join(Path.dirname(path), basename)]
     arguments(image) ++ base_arguments
   end
 
@@ -157,10 +175,15 @@ defmodule Mogrify do
   end
 
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
-  defp normalize_arguments({"annotate", params}), do: ~w(-annotate #{params})
+
+  defp normalize_arguments({"annotate", params}),
+    do: ["-annotate"] ++ String.split(params, " ", parts: 2)
+
   defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}), do: ["pango:#{params}"]
   defp normalize_arguments({"stdout", params}), do: ["#{params}"]
+  defp normalize_arguments({"plasma", params}), do: ["plasma:#{params}"]
+  defp normalize_arguments({"canvas", params}), do: ["canvas:#{params}"]
   defp normalize_arguments({"+" <> option, nil}), do: ["+#{option}"]
   defp normalize_arguments({"-" <> option, nil}), do: ["-#{option}"]
   defp normalize_arguments({option, nil}), do: ["-#{option}"]
@@ -169,7 +192,7 @@ defmodule Mogrify do
   defp normalize_arguments({option, params}), do: ["-#{option}", to_string(params)]
 
   @doc """
-  Makes a copy of original image
+  Makes a copy of original image.
   """
   def copy(image) do
     temp = temporary_path_for(image)
@@ -192,28 +215,32 @@ defmodule Mogrify do
   end
 
   @doc """
-  Provides detailed information about the image
+  Provides detailed information about the image.
+
+  This corresponds to the `mogrify -verbose` output which is similar to `identify`.
+  It does NOT correspond to `identify -verbose` which prints out much more information.
   """
   def verbose(image) do
-    args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
-
-    {output, 0} = cmd_mogrify(args, stderr_to_stdout: true)
-
-    info =
-      ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
-      |> Regex.named_captures(output)
-      |> Enum.map(&normalize_verbose_term/1)
-      |> Enum.into(%{})
-      |> put_frame_count(output)
-
-    Map.merge(image, info)
+    Map.merge(image, identify(image.path))
   end
 
-  defp dev_null do
-    case :os.type() do
-      {:win32, _} -> "NUL"
-      _ -> "/dev/null"
-    end
+  @doc """
+  Provides "identify" information about an image.
+  """
+  def identify(file_path) do
+    args = [file_path]
+    {output, 0} = cmd_identify(args, stderr_to_stdout: true)
+
+    output
+    |> image_information_string_to_map()
+    |> put_frame_count(output)
+  end
+
+  defp image_information_string_to_map(image_information_string) do
+    ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
+    |> Regex.named_captures(image_information_string)
+    |> Enum.map(&normalize_verbose_term/1)
+    |> Enum.into(%{})
   end
 
   defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
@@ -225,8 +252,8 @@ defmodule Mogrify do
 
   defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
 
-  defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
-
+  defp put_frame_count(%{animated: false} = map, _),
+    do: Map.put(map, :frame_count, 1)
   defp put_frame_count(map, text) do
     # skip the [0] lines which may be duplicated
     matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
@@ -236,7 +263,7 @@ defmodule Mogrify do
   end
 
   @doc """
-  Converts the image to the image format you specify
+  Converts the image to the image format you specify.
   """
   def format(image, format) do
     downcase_format = String.downcase(format)
@@ -252,28 +279,28 @@ defmodule Mogrify do
   end
 
   @doc """
-  Resizes the image with provided geometry
+  Resizes the image with provided geometry.
   """
   def resize(image, params) do
     %{image | operations: image.operations ++ [resize: params]}
   end
 
   @doc """
-  Changes quality of the image to desired quality
+  Changes quality of the image to desired quality.
   """
   def quality(image, params) do
     %{image | operations: image.operations ++ [quality: params]}
   end
 
   @doc """
-  Extends the image to the specified dimensions
+  Extends the image to the specified dimensions.
   """
   def extent(image, params) do
     %{image | operations: image.operations ++ [extent: params]}
   end
 
   @doc """
-  Sets the gravity of the image
+  Sets the gravity of the image.
   """
   def gravity(image, params) do
     %{image | operations: image.operations ++ [gravity: params]}
@@ -281,9 +308,11 @@ defmodule Mogrify do
 
   @doc """
   Resize the image to fit within the specified dimensions while retaining
-  the original aspect ratio. Will only resize the image if it is larger than the
-  specified dimensions. The resulting image may be shorter or narrower than specified
-  in the smaller dimension but will not be larger than the specified values.
+  the original aspect ratio.
+
+  Will only resize the image if it is larger than the specified dimensions. The
+  resulting image may be shorter or narrower than specified in the smaller
+  dimension but will not be larger than the specified values.
   """
   def resize_to_limit(image, params) do
     resize(image, "#{params}>")
@@ -291,8 +320,9 @@ defmodule Mogrify do
 
   @doc """
   Resize the image to fit within the specified dimensions while retaining
-  the aspect ratio of the original image. If necessary, crop the image in the
-  larger dimension.
+  the aspect ratio of the original image.
+
+  If necessary, crop the image in the larger dimension.
   """
   def resize_to_fill(image, params) do
     [_, width, height] = Regex.run(~r/(\d+)x(\d+)/, params)
@@ -369,21 +399,43 @@ defmodule Mogrify do
     end
   end
 
-  defp cmd_mogrify(args, opts) do
-    case :os.type() do
-      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "mogrify"] ++ args, opts)
-      _ -> System.cmd("mogrify", args, opts)
-    end
+  defp cmd_magick(tool, args, opts) do
+    {command, additional_args} = command_options(tool)
+    System.cmd(command, additional_args ++ args, opts)
+  rescue
+    e in [ErlangError] ->
+      if e.original == :enoent do
+        raise "missing prerequisite: '#{tool}'"
+      else
+        reraise e, __STACKTRACE__
+      end
   end
 
-  defp cmd_convert(args, opts) do
-    case :os.type() do
-      {:win32, _} -> System.cmd("cmd.exe", ["/c", "magick", "convert"] ++ args, opts)
-      _ -> System.cmd("convert", args, opts)
-    end
-  end
+  defp cmd_mogrify(args, opts), do: cmd_magick(:mogrify, args, opts)
+
+  defp cmd_identify(args, opts), do: cmd_magick(:identify, args, opts)
+
+  defp cmd_convert(args, opts), do: cmd_magick(:convert, args, opts)
 
   defp create_folder_if_doesnt_exist!(path) do
     path |> Path.dirname() |> File.mkdir_p!()
+  end
+
+  defp command_options(command) do
+    config = Application.get_env(:mogrify, :"#{command}_command", [])
+    path = Keyword.get(config, :path)
+    args = Keyword.get(config, :args, [])
+    if path do
+      {path, args}
+    else
+      default_command(command)
+    end
+  end
+
+  defp default_command(command) do
+    case :os.type() do
+      {:win32, _} -> {"cmd.exe", ["/c", "magick", "#{command}"]}
+      _ -> {"#{command}", []}
+    end
   end
 end

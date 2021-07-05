@@ -1,6 +1,15 @@
 defmodule Mogrify.Compat do
   @moduledoc false
 
+  defmacro __using__(_opts) do
+    quote do
+      Code.ensure_loaded(Kernel.SpecialForms)
+      if not macro_exported?(Kernel.SpecialForms, :__STACKTRACE__, 0) do
+        def __STACKTRACE__, do: System.stacktrace()
+      end
+    end
+  end
+
   def rand_uniform(high) do
     Code.ensure_loaded(:rand)
     if function_exported?(:rand, :uniform, 1) do
@@ -20,5 +29,4 @@ defmodule Mogrify.Compat do
       apply(String, :strip, [string])
     end
   end
-
 end

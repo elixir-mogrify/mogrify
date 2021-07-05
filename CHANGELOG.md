@@ -1,5 +1,46 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 0.9.0 (2021-07-03)
+
+* Breaking changes
+  * `save/2` and `verbose/1` will use `convert` and `identify` executables instead of `mogrify`
+    (except for `in_place: true` passed to `save/2`).
+    This fixes issues related to ImageMagick 6.9.12-14 and 7.0.11-13 behavior changes,
+    where the input file would get overwritten.
+
+* Enhancements
+  * Added `identify/1` which works similarly to `verbose/1`
+
+* Bugfixes
+  * `histogram/1` will parse fractional RGB values
+  * Input file will no longer be overwritten (except for `in_place: true` passed to `save/2`)
+    when using ImageMagick 6.9.12-14 or higher, and ImageMagick 7.0.11-13 or higher
+
+## 0.8.0 (2020-08-10)
+
+* Breaking changes
+  * `create/2` and `save/2` will throw an error if the ImageMagick command fails
+
+* Enhancements
+  * Added configuration options for `mogrify` and `convert` executable paths. See README.
+
+## 0.7.4 (2020-06-08)
+
+* Enhancements
+  * Added support for Plasma via `custom(image, "plasma", ...)` combined with `create/2`. See README for an example.
+
+## 0.7.3 (2019-08-19)
+
+* Bugfixes
+  * Create intermediate missing directories instead of silently failing `save/2` and `create/2`
+  * Fix for `custom(image, "annotate", ...)` with multi-word text
+  * Skip Pango unit tests if Pango not installed
+
 ## 0.7.2 (2019-03-12)
 
 * Enhancements

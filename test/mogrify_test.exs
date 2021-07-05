@@ -1,6 +1,6 @@
 defmodule MogrifyTest do
   use Mogrify.Options
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Mogrify
   import ExUnit.CaptureIO, only: [capture_io: 1]
@@ -12,6 +12,7 @@ defmodule MogrifyTest do
   @fixture_animated Path.join(__DIR__, "fixtures/bender_anim.gif")
   @fixture_rgbw Path.join(__DIR__, "fixtures/rgbw.png")
   @fixture_rgbwa Path.join(__DIR__, "fixtures/rgbwa.png")
+  @temp_directory "#{System.tmp_dir()}/mogrify" |> Path.expand()
   @temp_test_directory "#{System.tmp_dir()}/mogrify test folder" |> Path.expand()
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
@@ -60,7 +61,7 @@ defmodule MogrifyTest do
 
   test ".save in place" do
     # setup, make a copy
-    path = Path.join(System.tmp_dir(), "1.jpg")
+    path = Path.join(@temp_directory, "1.jpg")
     open(@fixture) |> save(path: path)
 
     # test begins
@@ -84,7 +85,7 @@ defmodule MogrifyTest do
 
   test ".save :in_place ignores :path option" do
     # setup, make a copy
-    path = Path.join(System.tmp_dir(), "1.jpg")
+    path = Path.join(@temp_directory, "1.jpg")
     open(@fixture) |> save(path: path)
 
     # test begins
@@ -159,6 +160,55 @@ defmodule MogrifyTest do
     File.rm_rf!(path_to_delete)
   end
 
+  @tag :plasma
+  test "plasma success" do
+    path = Path.join(System.tmp_dir(), "1.jpg")
+
+    image =
+      %Image{}
+      |> custom("plasma", "fractal")
+      |> create(path: path)
+
+    assert File.exists?(path) == true
+    assert %Image{path: ^path} = image
+
+    File.rm!(path)
+  end
+
+  @tag :plasma
+  test "plasma binary output buffer matches file output" do
+    image =
+      %Image{}
+      |> custom("seed", 10)
+      |> custom("plasma", "fractal")
+
+    result1 = image |> custom("stdout", "png:-") |> create(buffer: true)
+    result2 = image |> create(path: Path.join(System.tmp_dir(), "1.png"))
+    buf1 = result1.buffer
+    {:ok, buf2} = File.read(result2.path)
+    assert buf1 == buf2
+  end
+
+  @tag :plasma
+  test "plasma seed is used" do
+    image_seed10 =
+      %Image{}
+      |> custom("seed", 10)
+      |> custom("plasma", "fractal")
+
+    image_seed20 =
+      %Image{}
+      |> custom("seed", 20)
+      |> custom("plasma", "fractal")
+
+    result_seed10_1 = image_seed10 |> custom("stdout", "png:-") |> create(buffer: true)
+    result_seed10_2 = image_seed10 |> custom("stdout", "png:-") |> create(buffer: true)
+    result_seed20 = image_seed20 |> custom("stdout", "png:-") |> create(buffer: true)
+
+    assert result_seed10_1.buffer == result_seed10_2.buffer
+    assert result_seed10_1.buffer != result_seed20.buffer
+  end
+
   @tag :pango
   test "pango success" do
     path = Path.join(System.tmp_dir(), "1.jpg")
@@ -208,9 +258,12 @@ defmodule MogrifyTest do
   test "pango with invalid markup" do
     path = Path.join(System.tmp_dir(), "1.jpg")
 
-    %Image{}
-    |> custom("pango", ~S(<span foreground="yellow">hello test))
-    |> create(path: path)
+    # pango command should return nonzero exit status on invalid markup
+    assert_raise MatchError, fn ->
+      %Image{}
+      |> custom("pango", ~S(<span foreground="yellow">hello test))
+      |> create(path: path)
+    end
 
     assert File.exists?(path) == false
   end
@@ -300,6 +353,10 @@ defmodule MogrifyTest do
     assert %Image{frame_count: 2} = open(@fixture_animated) |> verbose
   end
 
+  test ".identify" do
+    assert %{format: "jpeg", height: 292, width: 300, animated: false} = identify(@fixture)
+  end
+
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: 292, width: 300} = image
@@ -361,6 +418,29 @@ defmodule MogrifyTest do
     %{size: size_implicit} = File.stat!(image_implicit.path)
     %{size: size_explicit} = File.stat!(image_explicit.path)
     assert size_implicit == size_explicit
+  end
+
+  @tag :skip  # broken on ImageMagick 6.8.9.9
+  test ".custom annotate with multiple words" do
+    path1 = Path.join(System.tmp_dir(), "1annotate.jpg")
+    path2 = Path.join(System.tmp_dir(), "2annotate.jpg")
+
+    image1 =
+      open(@fixture)
+      |> custom("annotate", "90 testing")
+      |> save(path: path1)
+
+    image2 =
+      open(@fixture)
+      |> custom("annotate", "90 testing multiple words")
+      |> save(path: path2)
+
+    %{size: size1} = File.stat!(image1.path)
+    %{size: size2} = File.stat!(image2.path)
+    assert size1 != size2
+
+    File.rm!(path1)
+    File.rm!(path2)
   end
 
   test ".histogram with no transparency" do
@@ -442,6 +522,35 @@ defmodule MogrifyTest do
       }
     ]
 
+    assert hist ==  expected
+  end
+
+  test ".histogram with fractional rgb values succeeds" do
+    hist =
+      open(@fixture)
+      |> custom("-alpha", "remove")
+      |> custom("-colors", 8)
+      |> histogram()
+    assert is_list(hist) and length(hist) > 0
+  end
+
+  @tag :skip  # RGB values and counts differ by system and ImageMagick version
+  test ".histogram with fractional rgb values" do
+    hist =
+      open(@fixture)
+      |> custom("-alpha", "remove")
+      |> custom("-colors", 8)
+      |> histogram()
+    expected =  [
+      %{"alpha" => 255, "blue" => 34, "count" => 1976, "green" => 33, "hex" => "#202122", "red" => 32},
+      %{"alpha" => 255, "blue" => 64, "count" => 2424, "green" => 63, "hex" => "#3E3F40", "red" => 62},
+      %{"alpha" => 255, "blue" => 103, "count" => 4669, "green" => 101, "hex" => "#656567", "red" => 101},
+      %{"alpha" => 255, "blue" => 127, "count" => 1319, "green" => 128, "hex" => "#7D807F", "red" => 125},
+      %{"alpha" => 255, "blue" => 129, "count" => 4915, "green" => 129, "hex" => "#7F8181", "red" => 127},
+      %{"alpha" => 255, "blue" => 150, "count" => 5913, "green" => 148, "hex" => "#939496", "red" => 147},
+      %{"alpha" => 255, "blue" => 191, "count" => 8142, "green" => 192, "hex" => "#BDC0BF", "red" => 189},
+      %{"alpha" => 255, "blue" => 244, "count" => 58242, "green" => 245, "hex" => "#F4F5F4", "red" => 244}
+    ]
     assert hist == expected
   end
 
