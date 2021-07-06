@@ -415,7 +415,8 @@ defmodule Mogrify do
 
   defp cmd_identify(args, opts), do: cmd_magick(:identify, args, opts)
 
-  defp cmd_convert(args, opts), do: cmd_magick(:convert, args, opts)
+  @doc false
+  def cmd_convert(args, opts), do: cmd_magick(:convert, args, opts)
 
   defp create_folder_if_doesnt_exist!(path) do
     path |> Path.dirname() |> File.mkdir_p!()
