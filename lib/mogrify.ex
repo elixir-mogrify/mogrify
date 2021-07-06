@@ -25,19 +25,31 @@ defmodule Mogrify do
   """
   def save(image, opts \\ []) do
     cmd_opts = [stderr_to_stdout: true]
+
     if opts[:in_place] do
+      final_output_path = if image.dirty[:path], do: image.dirty[:path], else: image.path
+
       args = arguments_for_saving_in_place(image)
       {_, 0} = cmd_mogrify(args, cmd_opts)
 
-      image_after_command(image, image.path)
+      image_after_command(image, final_output_path)
     else
-      output_path = output_path_for(image, opts)
-      create_folder_if_doesnt_exist!(output_path)
+      cmd_output_path = output_path_for(image, opts)
+      final_output_path = Keyword.get(opts, :path, cmd_output_path)
+      create_folder_if_doesnt_exist!(cmd_output_path)
+      create_folder_if_doesnt_exist!(final_output_path)
 
-      args = arguments_for_saving(image, output_path)
+      args = arguments_for_saving(image, cmd_output_path)
       {_, 0} = cmd_convert(args, cmd_opts)
 
-      image_after_command(image, output_path)
+      # final output path may differ if temporary path was used for image format
+      if cmd_output_path != final_output_path do
+        # copy then rm, because File.rename/2 may fail across filesystem boundary
+        File.copy!(cmd_output_path, final_output_path)
+        File.rm!(cmd_output_path)
+      end
+
+      image_after_command(image, final_output_path)
     end
   end
 
@@ -147,10 +159,11 @@ defmodule Mogrify do
   end
 
   defp output_path_for(image, save_opts) do
-    if Keyword.get(save_opts, :in_place) do
-      image.path
-    else
-      Keyword.get(save_opts, :path, temporary_path_for(image))
+    cond do
+      save_opts[:in_place] -> image.path
+      image.dirty[:path] -> temporary_path_for(image)  # temp file to ensure image format applied
+      save_opts[:path] -> save_opts[:path]
+      true -> temporary_path_for(image)
     end
   end
 
@@ -273,8 +286,8 @@ defmodule Mogrify do
     %{
       image
       | operations: image.operations ++ [format: format],
-        dirty:
-          image.dirty |> Map.put(:path, "#{rootname}#{ext}") |> Map.put(:format, downcase_format)
+        dirty: %{path: "#{rootname}#{ext}", format: downcase_format, ext: ext}
+               |> Enum.into(image.dirty)
     }
   end
 
