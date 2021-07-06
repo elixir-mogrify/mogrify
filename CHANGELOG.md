@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.1 (2021-07-06)
+
+* Bugfixes
+  * Fixed `format/2` when saving without extension or saving in place
+  * Avoid potential buffer corruption in `create/2`
+  * Windows: Fixed `resize_to_limit/2` and faster command invocation
+
 ## 0.9.0 (2021-07-03)
 
 * Breaking changes
