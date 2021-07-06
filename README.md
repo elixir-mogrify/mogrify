@@ -33,8 +33,8 @@ Configure `mogrify` command:
 
 ```elixir
 config :mogrify, mogrify_command: [
-  path: "mogrify",
-  args: []
+  path: "magick",
+  args: ["mogrify"]
 ]
 ```
 
@@ -42,8 +42,8 @@ Configure `convert` command:
 
 ```elixir
 config :mogrify, convert_command: [
-  path: "convert",
-  args: []
+  path: "magick",
+  args: ["convert"]
 ]
 ```
 
@@ -51,8 +51,8 @@ Configure `identify` command:
 
 ```elixir
 config :mogrify, identify_command: [
-  path: "identify",
-  args: []
+  path: "magick",
+  args: ["identify"]
 ]
 ```
 
