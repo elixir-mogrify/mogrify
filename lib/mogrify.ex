@@ -67,13 +67,13 @@ defmodule Mogrify do
   * `:into` - Used with `:buffer` to specify a Collectable. Defaults to `""`. See `System.cmd/3`.
   """
   def create(image, opts \\ []) do
-    cmd_opts = [stderr_to_stdout: true]
-
     if opts[:buffer] do
+      cmd_opts = [stderr_to_stdout: false]
       cmd_opts = if opts[:into], do: cmd_opts ++ [into: opts[:into]], else: cmd_opts
       {image_collectable, 0} = cmd_convert(arguments(image), cmd_opts)
       image_after_buffer_command(image, image_collectable)
     else
+      cmd_opts = [stderr_to_stdout: true]
       output_path = output_path_for(image, opts)
       create_folder_if_doesnt_exist!(output_path)
 
@@ -242,7 +242,7 @@ defmodule Mogrify do
   """
   def identify(file_path) do
     args = [file_path]
-    {output, 0} = cmd_identify(args, stderr_to_stdout: true)
+    {output, 0} = cmd_identify(args, stderr_to_stdout: false)
 
     output
     |> image_information_string_to_map()
@@ -428,7 +428,8 @@ defmodule Mogrify do
 
   defp cmd_identify(args, opts), do: cmd_magick(:identify, args, opts)
 
-  defp cmd_convert(args, opts), do: cmd_magick(:convert, args, opts)
+  @doc false
+  def cmd_convert(args, opts), do: cmd_magick(:convert, args, opts)
 
   defp create_folder_if_doesnt_exist!(path) do
     path |> Path.dirname() |> File.mkdir_p!()
@@ -447,7 +448,7 @@ defmodule Mogrify do
 
   defp default_command(command) do
     case :os.type() do
-      {:win32, _} -> {"cmd.exe", ["/c", "magick", "#{command}"]}
+      {:win32, _} -> {"magick", ["#{command}"]}
       _ -> {"#{command}", []}
     end
   end

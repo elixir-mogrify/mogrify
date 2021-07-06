@@ -1,13 +1,7 @@
 import Mogrify.Detect
 
-excluded = [:skip]
-
-excluded =
-  if has_imagemagick?() do
-    excluded = if has_pango?(), do: excluded ++ [:pango], else: excluded
-    if has_plasma?(), do: excluded ++ [:plasma], else: excluded
-  else
-    [:skip, :pango, :plasma]
-  end
+excluded = [:skip, :pango, :plasma]
+excluded = if has_imagemagick?() and has_pango?(), do: excluded -- [:pango], else: excluded
+excluded = if has_imagemagick?() and has_plasma?(), do: excluded -- [:plasma], else: excluded
 
 ExUnit.start(exclude: excluded)
