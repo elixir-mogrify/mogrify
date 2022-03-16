@@ -357,6 +357,10 @@ defmodule MogrifyTest do
     assert %{format: "jpeg", height: 292, width: 300, animated: false} = identify(@fixture)
   end
 
+  test ".identify with format" do
+    assert "Undefined" = identify(@fixture, format: "'%[orientation]'")
+  end
+
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: 292, width: 300} = image

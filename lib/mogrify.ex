@@ -249,6 +249,16 @@ defmodule Mogrify do
     |> put_frame_count(output)
   end
 
+  @doc """
+  Provides "identify" information about an image with raw access attribute.
+  Example: identify(file_path, format: "'%[orientation]'")
+  """
+  def identify(file_path, format: option) do
+    args = ["-format"] ++ [option] ++ [file_path]
+    {output, 0} = cmd_identify(args, stderr_to_stdout: false)
+    output |> String.replace("'", "")
+  end
+
   defp image_information_string_to_map(image_information_string) do
     ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
     |> Regex.named_captures(image_information_string)
