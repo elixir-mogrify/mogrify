@@ -142,7 +142,9 @@ defmodule Mogrify do
   defp clean_histogram_entry({"hex", v}), do: {"hex", v}
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
-  defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
+
+  defp clean_histogram_entry({k, v}),
+    do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
   def extract_histogram_data(entry) do
     ~r/^\s+(?<count>\d+):\s+\((?<red>[\d(?:\.\d+)?)\s]+),(?<green>[\d(?:\.\d+)?)\s]+),(?<blue>[\d(?:\.\d+)?)\s]+)(,(?<alpha>[\d(?:\.\d+)?)\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
@@ -161,7 +163,8 @@ defmodule Mogrify do
   defp output_path_for(image, save_opts) do
     cond do
       save_opts[:in_place] -> image.path
-      image.dirty[:path] -> temporary_path_for(image)  # temp file to ensure image format applied
+      # temp file to ensure image format applied
+      image.dirty[:path] -> temporary_path_for(image)
       save_opts[:path] -> save_opts[:path]
       true -> temporary_path_for(image)
     end
@@ -249,6 +252,16 @@ defmodule Mogrify do
     |> put_frame_count(output)
   end
 
+  @doc """
+  Provides "identify" information about an image with raw access attribute.
+  Example: identify(file_path, "'%[orientation]'")
+  """
+  def identify(file_path, option) do
+    args = ["-format"] ++ [option] ++ [file_path]
+    {output, 0} = cmd_identify(args, stderr_to_stdout: false)
+    output |> String.replace("'", "")
+  end
+
   defp image_information_string_to_map(image_information_string) do
     ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
     |> Regex.named_captures(image_information_string)
@@ -267,6 +280,7 @@ defmodule Mogrify do
 
   defp put_frame_count(%{animated: false} = map, _),
     do: Map.put(map, :frame_count, 1)
+
   defp put_frame_count(map, text) do
     # skip the [0] lines which may be duplicated
     matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
@@ -286,8 +300,9 @@ defmodule Mogrify do
     %{
       image
       | operations: image.operations ++ [format: format],
-        dirty: %{path: "#{rootname}#{ext}", format: downcase_format, ext: ext}
-               |> Enum.into(image.dirty)
+        dirty:
+          %{path: "#{rootname}#{ext}", format: downcase_format, ext: ext}
+          |> Enum.into(image.dirty)
     }
   end
 
@@ -398,9 +413,7 @@ defmodule Mogrify do
 
       raise ArgumentError,
         message:
-          "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{
-            option_name
-          }(arg)"
+          "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
     end
   end
 
@@ -439,6 +452,7 @@ defmodule Mogrify do
     config = Application.get_env(:mogrify, :"#{command}_command", [])
     path = Keyword.get(config, :path)
     args = Keyword.get(config, :args, [])
+
     if path do
       {path, args}
     else

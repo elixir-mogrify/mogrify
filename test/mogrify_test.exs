@@ -357,6 +357,10 @@ defmodule MogrifyTest do
     assert %{format: "jpeg", height: 292, width: 300, animated: false} = identify(@fixture)
   end
 
+  test ".identify_option" do
+    assert "Undefined" = identify(@fixture, "'%[orientation]'")
+  end
+
   test ".format" do
     image = open(@fixture) |> format("png") |> save |> verbose
     assert %Image{ext: ".png", format: "png", height: 292, width: 300} = image
@@ -431,7 +435,8 @@ defmodule MogrifyTest do
     assert size_implicit == size_explicit
   end
 
-  @tag :skip  # broken on ImageMagick 6.8.9.9
+  # broken on ImageMagick 6.8.9.9
+  @tag :skip
   test ".custom annotate with multiple words" do
     path1 = Path.join(System.tmp_dir(), "1annotate.jpg")
     path2 = Path.join(System.tmp_dir(), "2annotate.jpg")
@@ -533,7 +538,7 @@ defmodule MogrifyTest do
       }
     ]
 
-    assert hist ==  expected
+    assert hist == expected
   end
 
   test ".histogram with fractional rgb values succeeds" do
@@ -542,26 +547,86 @@ defmodule MogrifyTest do
       |> custom("-alpha", "remove")
       |> custom("-colors", 8)
       |> histogram()
+
     assert is_list(hist) and length(hist) > 0
   end
 
-  @tag :skip  # RGB values and counts differ by system and ImageMagick version
+  # RGB values and counts differ by system and ImageMagick version
+  @tag :skip
   test ".histogram with fractional rgb values" do
     hist =
       open(@fixture)
       |> custom("-alpha", "remove")
       |> custom("-colors", 8)
       |> histogram()
-    expected =  [
-      %{"alpha" => 255, "blue" => 34, "count" => 1976, "green" => 33, "hex" => "#202122", "red" => 32},
-      %{"alpha" => 255, "blue" => 64, "count" => 2424, "green" => 63, "hex" => "#3E3F40", "red" => 62},
-      %{"alpha" => 255, "blue" => 103, "count" => 4669, "green" => 101, "hex" => "#656567", "red" => 101},
-      %{"alpha" => 255, "blue" => 127, "count" => 1319, "green" => 128, "hex" => "#7D807F", "red" => 125},
-      %{"alpha" => 255, "blue" => 129, "count" => 4915, "green" => 129, "hex" => "#7F8181", "red" => 127},
-      %{"alpha" => 255, "blue" => 150, "count" => 5913, "green" => 148, "hex" => "#939496", "red" => 147},
-      %{"alpha" => 255, "blue" => 191, "count" => 8142, "green" => 192, "hex" => "#BDC0BF", "red" => 189},
-      %{"alpha" => 255, "blue" => 244, "count" => 58242, "green" => 245, "hex" => "#F4F5F4", "red" => 244}
+
+    expected = [
+      %{
+        "alpha" => 255,
+        "blue" => 34,
+        "count" => 1976,
+        "green" => 33,
+        "hex" => "#202122",
+        "red" => 32
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 64,
+        "count" => 2424,
+        "green" => 63,
+        "hex" => "#3E3F40",
+        "red" => 62
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 103,
+        "count" => 4669,
+        "green" => 101,
+        "hex" => "#656567",
+        "red" => 101
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 127,
+        "count" => 1319,
+        "green" => 128,
+        "hex" => "#7D807F",
+        "red" => 125
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 129,
+        "count" => 4915,
+        "green" => 129,
+        "hex" => "#7F8181",
+        "red" => 127
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 150,
+        "count" => 5913,
+        "green" => 148,
+        "hex" => "#939496",
+        "red" => 147
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 191,
+        "count" => 8142,
+        "green" => 192,
+        "hex" => "#BDC0BF",
+        "red" => 189
+      },
+      %{
+        "alpha" => 255,
+        "blue" => 244,
+        "count" => 58242,
+        "green" => 245,
+        "hex" => "#F4F5F4",
+        "red" => 244
+      }
     ]
+
     assert hist == expected
   end
 
