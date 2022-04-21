@@ -17,9 +17,7 @@ defmodule Mogrify do
 
   @doc """
   Saves modified image.
-
   ## Options
-
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   """
@@ -55,12 +53,9 @@ defmodule Mogrify do
 
   @doc """
   Creates or saves image.
-
   Uses the `convert` command, which accepts both existing images, or image
   operators. If you have an existing image, prefer save/2.
-
   ## Options
-
   * `:path` - The output path of the image. Defaults to a temporary file.
   * `:in_place` - Overwrite the original image, ignoring `:path` option. Default `false`.
   * `:buffer` - Pass `true` to write to Collectable in Image.buffer instead of file.
@@ -84,14 +79,10 @@ defmodule Mogrify do
 
   @doc """
   Returns the histogram of the image
-
   Runs ImageMagick's `histogram:info:-` command.
-
   Results are returned as a list of maps where each map includes keys red,
   blue, green, hex and count.
-
   ## Examples
-
       iex> open("test/fixtures/rbgw.png") |> histogram
       [
         %{"alpha" => 255, "blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
@@ -99,7 +90,6 @@ defmodule Mogrify do
         %{"alpha" => 255, "blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
         %{"alpha" => 255, "blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
       ]
-
   """
   def histogram(image) do
     img = image |> custom("format", "%c")
@@ -142,7 +132,6 @@ defmodule Mogrify do
   defp clean_histogram_entry({"hex", v}), do: {"hex", v}
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
-
   defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
   def extract_histogram_data(entry) do
@@ -162,8 +151,7 @@ defmodule Mogrify do
   defp output_path_for(image, save_opts) do
     cond do
       save_opts[:in_place] -> image.path
-      # temp file to ensure image format applied
-      image.dirty[:path] -> temporary_path_for(image)
+      image.dirty[:path] -> temporary_path_for(image)  # temp file to ensure image format applied
       save_opts[:path] -> save_opts[:path]
       true -> temporary_path_for(image)
     end
@@ -231,7 +219,6 @@ defmodule Mogrify do
 
   @doc """
   Provides detailed information about the image.
-
   This corresponds to the `mogrify -verbose` output which is similar to `identify`.
   It does NOT correspond to `identify -verbose` which prints out much more information.
   """
@@ -279,7 +266,6 @@ defmodule Mogrify do
 
   defp put_frame_count(%{animated: false} = map, _),
     do: Map.put(map, :frame_count, 1)
-
   defp put_frame_count(map, text) do
     # skip the [0] lines which may be duplicated
     matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
@@ -299,9 +285,8 @@ defmodule Mogrify do
     %{
       image
       | operations: image.operations ++ [format: format],
-        dirty:
-          %{path: "#{rootname}#{ext}", format: downcase_format, ext: ext}
-          |> Enum.into(image.dirty)
+        dirty: %{path: "#{rootname}#{ext}", format: downcase_format, ext: ext}
+               |> Enum.into(image.dirty)
     }
   end
 
@@ -336,7 +321,6 @@ defmodule Mogrify do
   @doc """
   Resize the image to fit within the specified dimensions while retaining
   the original aspect ratio.
-
   Will only resize the image if it is larger than the specified dimensions. The
   resulting image may be shorter or narrower than specified in the smaller
   dimension but will not be larger than the specified values.
@@ -348,7 +332,6 @@ defmodule Mogrify do
   @doc """
   Resize the image to fit within the specified dimensions while retaining
   the aspect ratio of the original image.
-
   If necessary, crop the image in the larger dimension.
   """
   def resize_to_fill(image, params) do
@@ -412,7 +395,9 @@ defmodule Mogrify do
 
       raise ArgumentError,
         message:
-          "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{option_name}(arg)"
+          "the option #{option_name} need arguments. Be sure to pass arguments to option_#{prefix}#{
+            option_name
+          }(arg)"
     end
   end
 
@@ -451,7 +436,6 @@ defmodule Mogrify do
     config = Application.get_env(:mogrify, :"#{command}_command", [])
     path = Keyword.get(config, :path)
     args = Keyword.get(config, :args, [])
-
     if path do
       {path, args}
     else
