@@ -143,8 +143,7 @@ defmodule Mogrify do
   defp clean_histogram_entry({"alpha", ""}), do: {"alpha", 255}
   defp clean_histogram_entry({k, ""}), do: {k, 0}
 
-  defp clean_histogram_entry({k, v}),
-    do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
+  defp clean_histogram_entry({k, v}), do: {k, v |> Float.parse() |> elem(0) |> Float.round(0) |> trunc}
 
   def extract_histogram_data(entry) do
     ~r/^\s+(?<count>\d+):\s+\((?<red>[\d(?:\.\d+)?)\s]+),(?<green>[\d(?:\.\d+)?)\s]+),(?<blue>[\d(?:\.\d+)?)\s]+)(,(?<alpha>[\d(?:\.\d+)?)\s]+))?\)\s+(?<hex>\#[abcdef\d]{6,8})\s+/i
@@ -254,9 +253,9 @@ defmodule Mogrify do
 
   @doc """
   Provides "identify" information about an image with raw access attribute.
-  Example: identify(file_path, "'%[orientation]'")
+  Example: identify(file_path, format: "'%[orientation]'")
   """
-  def identify(file_path, option) do
+  def identify(file_path, format: option) do
     args = ["-format"] ++ [option] ++ [file_path]
     {output, 0} = cmd_identify(args, stderr_to_stdout: false)
     output |> String.replace("'", "")

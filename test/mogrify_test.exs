@@ -358,7 +358,7 @@ defmodule MogrifyTest do
   end
 
   test ".identify_option" do
-    assert "Undefined" = identify(@fixture, "'%[orientation]'")
+    assert "Undefined" = identify(@fixture, format: "'%[orientation]'")
   end
 
   test ".format" do
