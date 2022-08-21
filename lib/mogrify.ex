@@ -202,6 +202,7 @@ defmodule Mogrify do
   defp normalize_arguments({option, nil}), do: ["-#{option}"]
   defp normalize_arguments({"+" <> option, params}), do: ["+#{option}", to_string(params)]
   defp normalize_arguments({"-" <> option, params}), do: ["-#{option}", to_string(params)]
+  defp normalize_arguments({:limit, params}), do: ~w(-limit #{params})
   defp normalize_arguments({option, params}), do: ["-#{option}", to_string(params)]
 
   @doc """
@@ -313,6 +314,21 @@ defmodule Mogrify do
   """
   def quality(image, params) do
     %{image | operations: image.operations ++ [quality: params]}
+  end
+
+  @doc """
+  Sets a pixel cache resource limit.
+  """
+  def limit(image, type, value) do
+    image
+    |> limit("#{type} #{value}")
+  end
+
+  @doc """
+  Sets a pixel cache resource limit, in the form of a space-separated string (e.g. `"memory 30mb"`).
+  """
+  def limit(image, params) do
+    %{image | operations: image.operations ++ [limit: params]}
   end
 
   @doc """
