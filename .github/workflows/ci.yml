@@ -6,13 +6,13 @@ jobs:
     name: ${{matrix.os}} / OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        otp: ['20.0']
-        elixir: ['1.4.5']
         include:
-          - os: ubuntu-18.04
-            otp: '19.0'
-            elixir: '1.2.6'
+          - os: ubuntu-22.04
+            otp: '25'
+            elixir: '1.14'
+          - os: ubuntu-20.04
+            otp: '20.0'
+            elixir: '1.4.5'
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
@@ -45,11 +45,11 @@ jobs:
           path: C:\Users\runneradmin\AppData\Local\Temp\chocolatey\Elixir
           key: Elixir-${{ matrix.elixir }}-windows-2019
       - name: Install Erlang/OTP
-        run: choco install -y erlang --version ${{ matrix.otp }}
+        run: choco install -y erlang --force --version ${{ matrix.otp }}
       - name: Install Elixir
-        run: choco install -y elixir --version ${{ matrix.elixir }}
+        run: choco install -y elixir --force --version ${{ matrix.elixir }}
       - name: Install ImageMagick
-        run: choco install -y imagemagick.app --version ${{ matrix.imagemagick }}
+        run: choco install -y imagemagick.app --force --version ${{ matrix.imagemagick }}
       - name: Add Elixir to Path
         run: echo "C:\ProgramData\chocolatey\lib\Elixir\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Add ImageMagick to Path
