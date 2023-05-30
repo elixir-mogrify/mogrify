@@ -458,6 +458,16 @@ defmodule MogrifyTest do
     File.rm!(path2)
   end
 
+  test ".custom morphology succeeds" do
+    path = Path.join(System.tmp_dir(), "1.jpg")
+
+    open(@fixture)
+    |> custom("morphology", "TopHat Disk")
+    |> save(path: path)
+
+    File.rm!(path)
+  end
+
   test ".histogram with no transparency" do
     hist = open(@fixture_rgbw) |> histogram |> Enum.sort_by(fn %{"hex" => hex} -> hex end)
 

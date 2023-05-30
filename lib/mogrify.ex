@@ -187,11 +187,10 @@ defmodule Mogrify do
     Enum.flat_map(image.operations, &normalize_arguments/1)
   end
 
-  defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
-
+  defp normalize_arguments({:image_operator, params}), do: String.split(params)
   defp normalize_arguments({"annotate", params}),
     do: ["-annotate"] ++ String.split(params, " ", parts: 2)
-
+  defp normalize_arguments({"morphology", params}), do: ["-morphology"] ++ String.split(params)
   defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
   defp normalize_arguments({"pango", params}), do: ["pango:#{params}"]
   defp normalize_arguments({"stdout", params}), do: ["#{params}"]
@@ -202,7 +201,7 @@ defmodule Mogrify do
   defp normalize_arguments({option, nil}), do: ["-#{option}"]
   defp normalize_arguments({"+" <> option, params}), do: ["+#{option}", to_string(params)]
   defp normalize_arguments({"-" <> option, params}), do: ["-#{option}", to_string(params)]
-  defp normalize_arguments({:limit, params}), do: ~w(-limit #{params})
+  defp normalize_arguments({:limit, params}), do: ["-limit"] ++ String.split(params)
   defp normalize_arguments({option, params}), do: ["-#{option}", to_string(params)]
 
   @doc """
