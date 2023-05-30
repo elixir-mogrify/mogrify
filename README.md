@@ -21,7 +21,7 @@ Add this to your `mix.exs` file, then run `mix do deps.get, deps.compile`:
 
 ```elixir
 def deps do
-  {:mogrify, "~> 0.9.2"}
+  {:mogrify, "~> 0.9.3"}
 end
 ```
 

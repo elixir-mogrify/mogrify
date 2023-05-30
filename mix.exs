@@ -2,7 +2,7 @@ defmodule Mogrify.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/elixir-mogrify/mogrify"
-  @version "0.9.2"
+  @version "0.9.3"
 
   def project do
     [

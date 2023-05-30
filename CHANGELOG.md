@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.3 (2023-05-30)
+
+* Enhancements
+  * Added `limit/2` and `limit/3` to set pixel cache limits ([#112](https://github.com/elixir-mogrify/mogrify/pull/112))
+
+* Bugfixes
+  * Fix for `custom(image, "morphology", ...)` multi-word parameters ([#114](https://github.com/elixir-mogrify/mogrify/discussions/114))
+
 ## 0.9.2 (2022-06-24)
 
 * Enhancements
